@@ -51,8 +51,8 @@ header h3{margin:0;background:linear-gradient(90deg,var(--g),var(--r));-webkit-b
 .ok{text-align:center;padding:12px;border-radius:12px;background:#12351f;border:1px solid var(--gd);margin:8px 0}
 input,textarea,select{width:100%;background:#0d0708;color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:10px;margin:4px 0;font:inherit;font-size:16px}
 h4{color:var(--g);margin:16px 0 4px}small.c{color:var(--mu)}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
-.tab{background:#1a0d10;color:var(--mu);border:1px solid var(--ln);border-radius:10px;padding:9px 2px;font-size:12px;font-family:inherit}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:10px 0}
+.tab{background:#1a0d10;color:var(--mu);border:1px solid var(--ln);border-radius:10px;padding:9px 1px;font-size:11px;font-family:inherit}
 .tab.on{background:linear-gradient(#3fe283,var(--gd));color:#04140a;border-color:var(--g);font-weight:bold}
 .nav{display:flex;gap:6px;align-items:center}.nav select{flex:1}.nav .b{width:48px;padding:10px 0;margin:4px 0}
 .row{display:flex;gap:8px;align-items:center;justify-content:space-between;border:1px solid var(--ln);background:#0f0709;border-radius:12px;padding:8px 10px;margin:6px 0}
@@ -62,6 +62,52 @@ h4{color:var(--g);margin:16px 0 4px}small.c{color:var(--mu)}
 .panel{border:1px solid var(--ln);background:#120a0c;border-radius:16px;padding:12px;margin:10px 0}
 .big{font-size:44px;text-align:center;margin:0}
 details summary{color:var(--g);padding:8px 0}
+
+.hr{display:flex;gap:10px;align-items:center}
+.b.go{font-size:22px;padding:18px;animation:gp 1.4s ease-in-out infinite}
+@keyframes gp{50%{transform:scale(1.03);box-shadow:0 0 24px #ffffff55}}
+/* ---- live message banner (drops from the top) ---- */
+#bn{position:fixed;left:0;right:0;top:0;z-index:20;padding:calc(env(safe-area-inset-top) + 8px) 10px 0;transform:translateY(-150%);transition:transform .6s cubic-bezier(.2,1.35,.4,1);pointer-events:none}
+#bn.show{transform:none;pointer-events:auto}
+#bn .bi{position:relative;max-width:480px;margin:auto;display:flex;gap:12px;align-items:center;padding:12px 14px 14px;border-radius:16px;border:2px solid var(--r);background:linear-gradient(100deg,#2a0b11f2,#0f2a19f2);box-shadow:0 8px 30px #000a,0 0 26px #ff475766;overflow:hidden}
+#bn .bell{font-size:30px;display:inline-block;transform-origin:50% 0;animation:ring .9s .5s ease-in-out 3}
+@keyframes ring{0%,100%{transform:rotate(0)}20%{transform:rotate(22deg)}40%{transform:rotate(-18deg)}60%{transform:rotate(12deg)}80%{transform:rotate(-8deg)}}
+#bn small{color:var(--g);letter-spacing:2px;font-size:11px}
+#bn .bt{font-size:18px;line-height:1.35;color:#fff;word-break:break-word}
+#bn .bp{position:absolute;left:0;bottom:0;height:3px;width:100%;background:linear-gradient(90deg,var(--g),var(--r));transform-origin:left;transform:scaleX(1)}
+#bn.show .bp{animation:drain 8s linear forwards}
+@keyframes drain{to{transform:scaleX(0)}}
+/* ---- result overlay ---- */
+#fx{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;overflow:hidden}
+#fx.out{animation:fxout .4s forwards}
+@keyframes fxout{to{opacity:0}}
+@keyframes fxin{from{opacity:0}}
+#fx canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#fx>*:not(canvas):not(.rr):not(.rain):not(.fl-flash){position:relative;z-index:3}
+#fx .sub{font-size:19px;line-height:1.5;margin:6px 0}
+/* winner */
+#fx.fw{background:radial-gradient(circle at 50% 40%,#17502f 0,#07210f 48%,#020a05 100%);animation:fxin .35s both}
+#fx .rr{position:absolute;left:50%;top:38%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;background:repeating-conic-gradient(#ffd76a38 0 7deg,transparent 7deg 20deg);-webkit-mask:radial-gradient(circle,#000 0,transparent 52%);mask:radial-gradient(circle,#000 0,transparent 52%);animation:spin 16s linear infinite;z-index:0}
+#fx .tr{font-size:120px;line-height:1;filter:drop-shadow(0 0 26px #ffd76a);animation:trin .95s cubic-bezier(.2,1.6,.4,1) both,trg 1.5s .95s ease-in-out infinite alternate}
+@keyframes trin{from{transform:scale(0) rotate(-50deg) translateY(120px);opacity:0}}
+@keyframes trg{to{transform:scale(1.1) rotate(4deg);filter:drop-shadow(0 0 48px #ffe9a0) brightness(1.15)}}
+#fx .wt{font-size:46px;font-weight:bold;letter-spacing:4px;margin:10px 0 4px;background:linear-gradient(100deg,#fff6c4,#ffd76a,#4be68a,#ffd76a,#fff6c4) 0 0/250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite,pop .7s .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(0);opacity:0}}
+#fx.fw .sub{color:#d6ffe3}
+/* loser */
+#fx.fl{background:radial-gradient(circle at 50% 30%,#3a0d12 0,#14070a 52%,#000 100%);animation:fxin .3s both,shake .8s .05s}
+@keyframes shake{0%,100%{transform:none}10%{transform:translate(-14px,6px)}20%{transform:translate(12px,-8px)}30%{transform:translate(-12px,-4px)}40%{transform:translate(10px,8px)}50%{transform:translate(-8px,2px)}60%{transform:translate(6px,-4px)}80%{transform:translate(-3px,2px)}}
+#fx .fl-flash{position:absolute;inset:0;background:#ff0a24;z-index:2;pointer-events:none;animation:rf 1s ease-out forwards}
+@keyframes rf{from{opacity:.75}to{opacity:0}}
+#fx .sad{font-size:120px;line-height:1;filter:grayscale(.5) drop-shadow(0 0 18px #ff475755);animation:sadin 1.1s both,wob 2.6s 1.2s ease-in-out infinite}
+@keyframes sadin{0%{transform:translateY(-80vh) rotate(-25deg)}50%{transform:translateY(0) rotate(0)}65%{transform:translateY(-34px)}80%{transform:translateY(0)}90%{transform:translateY(-9px)}100%{transform:none}}
+@keyframes wob{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg) translateY(5px)}}
+#fx .lt2{font-size:44px;font-weight:bold;letter-spacing:3px;margin:10px 0 4px;color:#a3a6ad;text-shadow:0 0 16px #ff475788;transform-origin:50% 0;animation:melt 1.3s .7s cubic-bezier(.3,1.2,.5,1) both}
+@keyframes melt{from{opacity:0;transform:scaleY(.1) translateY(-40px);letter-spacing:22px}60%{transform:scaleY(1.25)}}
+#fx.fl .sub{color:#e6b5ba}
+#fx .rain{position:absolute;top:-50px;z-index:1;font-style:normal;opacity:.85;animation:fallr linear infinite}
+@keyframes fallr{to{transform:translateY(115vh) rotate(var(--rt))}}
+@media (prefers-reduced-motion:reduce){#fx .rr,#fx .tr,#fx .sad,#fx.fl{animation:none}#bn .bell{animation:none}}
 </style></head><body>
 <div id="ld"><div id="sp"></div><svg viewBox="0 0 300 210" aria-hidden="true">
 <defs>
@@ -81,11 +127,13 @@ details summary{color:var(--g);padding:8px 0}
 <path d="M40 186Q150 178 260 186" stroke="#2ecc71" stroke-opacity=".3" fill="none"/>
 </svg>
 <h1>AL-LE3BA</h1><small>SEASON ONE</small><div class="gl" id="gl"></div><div class="bar"><b></b></div><small id="lt"></small></div>
-<header><button class="rf" onclick="hard()" title="Update">↻</button><h3 id="ttl">AL-LE3BA</h3><span class="dot" id="dot"></span></header>
+<header><button class="rf" onclick="hard()" title="Update">↻</button><h3 id="ttl">AL-LE3BA</h3><span class="hr"><button class="rf" id="snd" onclick="tsnd()" title="Sound">🔊</button><span class="dot" id="dot"></span></span></header>
 <div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-// === Paste your Firebase Realtime Database URL here (no trailing slash). Empty = no sync between phones.
-const DB="";
+// Firebase Realtime Database (live sync between all phones)
+const FB={apiKey:"AIzaSyAfm1SkQSqwpf-82kWrsTgoiXgk2DMOSpU",authDomain:"retrocallapp.firebaseapp.com",databaseURL:"https://retrocallapp-default-rtdb.firebaseio.com",projectId:"retrocallapp",storageBucket:"retrocallapp.firebasestorage.app",messagingSenderId:"364436629934",appId:"1:364436629934:web:080df2aa03fad1f6fcc03f"};
 const CV=2; // challenge list version: bump to push a new default list to every phone
 const C=[
 // EASY (days 1-10)
@@ -126,15 +174,28 @@ const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>(
 const td=()=>{let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const PC={lilly:'#ff5a67',asser:'#2ecc71'};
 let S=JSON.parse(localStorage.S||'null')||{start:td(),ch:[...C],cv:CV,win:{},claim:{},custom:{},bonus:{lilly:0,asser:0},pin:"1234"};
-let Q=JSON.parse(localStorage.Q||'[]'),who=localStorage.who||'',zd=0,ok=0,cf=0,tab=localStorage.tab||'today',ei=-1;
+let who=localStorage.who||'',zd=0,ok=0,cf=0,busy=0,tab=localStorage.tab||'today',ei=-1,db=null,SV=null,off=0,sup='';
 const save=()=>localStorage.S=JSON.stringify(S);
-function setp(p,v){let o=S,k=p.split('/');k.slice(0,-1).forEach(x=>o=o[x]=o[x]||{});o[k.at(-1)]=v;save();Q.push([p,v]);localStorage.Q=JSON.stringify(Q);flush();render()}
-async function flush(){if(!DB)return;try{while(Q.length){let[p,v]=Q[0],r=await fetch(`${DB}/${p}.json`,{method:'PUT',body:JSON.stringify(v)});if(!r.ok)throw 0;Q.shift();localStorage.Q=JSON.stringify(Q)}}catch(e){}}
-function mig(){if(S.cv===CV)return;S.ch=[...C];S.cv=CV;save();Q.push(['ch',S.ch],['cv',CV]);localStorage.Q=JSON.stringify(Q);flush()}
-async function pull(){if(!DB)return;await flush();if(Q.length){ok=0;return dot()}
- try{let d=await(await fetch(DB+'/.json')).json();ok=1;if(d){S={...S,...d};S.ch=Object.values(S.ch||C);mig();save()}else await fetch(DB+'/.json',{method:'PUT',body:JSON.stringify(S)});
- if(!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))render()}catch(e){ok=0}dot()}
-const dot=()=>$('#dot').className='dot'+(ok?' on':'');
+const rr=()=>{if(!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))render()};
+function setp(p,v){let o=S,k=p.split('/');k.slice(0,-1).forEach(x=>o=o[x]=o[x]||{});v===null?delete o[k.at(-1)]:o[k.at(-1)]=v;save();if(db)db.ref(p).set(v).catch(()=>{});render()}
+function mig(){if((S.cv||0)>=CV)return;S.ch=[...C];S.cv=CV;save();if(db){db.ref('ch').set(S.ch);db.ref('cv').set(CV)}}
+function startSync(){
+ if(!window.firebase)return dot();
+ try{
+  firebase.initializeApp(FB);db=firebase.database();SV=firebase.database.ServerValue;
+  db.ref('.info/serverTimeOffset').on('value',s=>off=s.val()||0);
+  db.ref('.info/connected').on('value',s=>{ok=s.val()?1:0;dot();rr()});
+  db.ref('/').on('value',s=>{let d=s.val();if(d)applyRemote(d);else db.ref('/').set(JSON.parse(JSON.stringify(S)))},()=>{ok=0;dot()});
+ }catch(e){db=null}
+}
+function applyRemote(d){
+ S={start:S.start,pin:S.pin,cv:S.cv,win:{},claim:{},custom:{},pick:{},...d};
+ S.ch=Object.values(S.ch||C).filter(Boolean);S.bonus={lilly:0,asser:0,...(d.bonus||{})};
+ mig();save();rr();
+ if(d.evt)onEvt(d.evt);
+ if(d.msg)onMsg(d.msg);
+}
+const dot=()=>{let e=$('#dot');if(e)e.className='dot'+(ok?' on':'')}
 function dayN(){let n=new Date(Date.now()-(S.hour??4)*36e5),[y,m,d]=S.start.split('-').map(Number);return Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())-Date.UTC(y,m-1,d))/864e5)+1}
 const curDay=()=>Math.min(S.ch.length,Math.max(1,dayN()));
 const lv=n=>n<=10?['Easy','#2ecc71']:n<=20?['Medium','#ff9f43']:['Hard','#ff4757'];
@@ -157,22 +218,23 @@ function render(){const A=$('#app');
  if(!m){
   if(n<1)h+=`<div class=ok>Season starts on ${S.start}</div>`;
   else if(n>T){let a=sc('lilly'),b=sc('asser');h+=`<div class=ok>🏆 Season complete! ${a==b?"It's a tie!":(a>b?'Lilly':'Asser')+' is the champion!'}</div>`}
-  else{h+=w?`<div class=ok>${w=='none'?'No winner today':w==who?'🏆 You won! +3':"Zezo has picked today's winner"}</div>`:cl[who]?'<div class=ok>⏳ Sent! Waiting for Zezo to check…</div>':cf?`<div class=panel><b>Are you sure you did it?</b><p>Zezo will check your challenge.</p><div class=grid2><button class="b gr" onclick="cf=0;setp('claim/d${d}/${who}',Date.now())">Yes, I did it ✅</button><button class="b d" onclick="cf=0;render()">Not yet</button></div></div>`:`<button class="b ${who=='asser'?'gr':''}" onclick="cf=1;render()">I did it! ✋</button>`;h+='<p style="text-align:center"><small class=c id=cd></small></p>'}
+  else{h+=w?`<div class=ok>${w=='none'?'No winner today':w==who?'🏆 You won today! +3':'😔 '+cap(w)+' was faster today'}</div>`:busy?'<div class=ok>⏳ Checking…</div>':!ok?'<div class=ok>📡 Connecting… you need internet to play</div>':cf?`<div class=panel><b>Are you sure you did it?</b><p>Be honest! The first one to confirm wins today's +3 points.</p><div class=grid2><button class="b gr" onclick="claimWin()">Yes, I won! 🏆</button><button class="b d" onclick="cf=0;render()">Not yet</button></div></div>`:`<button class="b go ${who=='asser'?'gr':''}" onclick="cf=1;render()">I DID IT! ✋</button>`;h+='<p style="text-align:center"><small class=c id=cd></small></p>'}
   h+=board();
  }else h+=adm(d,T,cur,cl,w);
  h+=`<p style="text-align:center"><small class=c style="cursor:pointer" onclick="confirm('Change player on this phone?')&&(localStorage.who=who='',render())">change player</small></p>`;
  A.innerHTML=h;cd()}
 const board=()=>`<div class=sb>${['lilly','asser'].map(p=>`<div style="border-color:${PC[p]}">${cap(p)}<big style="color:${PC[p]}">${sc(p)}</big></div>`).join('')}</div>`;
 function adm(d,T,cur,cl,w){
- let h=`<div class=tabs>${[['today','📅 Today'],['score','🏆 Scores'],['chal','📜 List'],['set','⚙️ Settings']].map(([k,l])=>`<button class="tab${tab==k?' on':''}" onclick="setTab('${k}')">${l}</button>`).join('')}</div>`;
+ let h=`<div class=tabs>${[['today','📅 Today'],['live','📢 Live'],['score','🏆 Score'],['chal','📜 List'],['set','⚙️ Setup']].map(([k,l])=>`<button class="tab${tab==k?' on':''}" onclick="setTab('${k}')">${l}</button>`).join('')}</div>`;
  if(tab=='today'){
   h+=`<div class=nav><button class="b d" onclick="go(-1)">◀</button><select onchange="zd=+this.value;render()">${Array.from({length:T},(_,i)=>`<option value=${i+1} ${i+1==d?'selected':''}>Day ${i+1}${i+1==cur?' (today)':''}</option>`).join('')}</select><button class="b d" onclick="go(1)">▶</button></div>`;
   let used=new Set(),pk=(S.pick||{})['d'+d]!=null;for(let k=1;k<=T;k++){if(k!=d&&(k<cur||(S.pick||{})['d'+k]!=null))used.add(ci(k))}
   h+=`<div class=panel><b>🎯 Challenge for Day ${d}</b><select onchange="setp('pick/d${d}',+this.value)">${S.ch.map((c,i)=>`<option value=${i} ${i==ci(d)?'selected':''}>${used.has(i)?'✔ ':''}${i+1}. ${esc(c.split('|')[0])} (${lv(i+1)[0]})</option>`).join('')}</select><small class=c>${pk?'You picked this one. ✔ = already used on another day.':'Not picked yet, so it follows the list order. ✔ = already used.'}</small>${pk?`<br><button class="b s d" onclick="setp('pick/d${d}',null)">Back to list order</button>`:''}</div>`;
-  h+=`<div class=panel><b>Who says they did it?</b>${['lilly','asser'].map(p=>`<div class=row style="border-color:${cl[p]?PC[p]:''}"><span style="color:${PC[p]}">${cap(p)}</span><span>${cl[p]?'✋ '+new Date(cl[p]).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'waiting…'}</span></div>`).join('')}</div>
-  <div class=panel><b>Winner: ${w?(w=='none'?'No winner':cap(w)):'not picked yet'}</b>
-  <div class=grid2 style="margin-top:8px"><button class="b ${w=='lilly'?'on':''}" onclick="setp('win/d${d}','lilly')">Lilly won</button><button class="b gr ${w=='asser'?'on':''}" onclick="setp('win/d${d}','asser')">Asser won</button><button class="b d ${w=='none'?'on':''}" onclick="setp('win/d${d}','none')">No winner</button><button class="b d" onclick="setp('win/d${d}',null)">Undo</button></div></div>
+  h+=`<div class=panel><b>🏁 ${w?(w=='none'?'No winner':'Winner: '+cap(w)):'The race is on…'}</b><p><small class=c>${w?'Decided automatically: first player to confirm.':'Nobody picks the winner. The first player to tap "I did it" and confirm gets +3.'}</small></p>${w?`<button class="b s d" onclick="confirm('Undo this winner? The day opens again.')&&setp('win/d${d}',null)">Undo winner</button>`:''}</div>
   <details class=panel><summary>✨ Send a custom one-off for Day ${d}</summary><input id=ct placeholder="Title"><textarea id=cds rows=2 placeholder="What to do"></textarea><button class="b s" onclick="$('#ct').value&&setp('custom/d${d}',$('#ct').value+'|'+$('#cds').value)">Send</button><button class="b s d" onclick="setp('custom/d${d}',null)">Remove custom</button></details>`;
+ }
+ if(tab=='live'){
+  h+=`<div class=panel><b>📢 Live message</b><br><small class=c>Drops from the top of every phone instantly, with a sound.</small><textarea id=lm rows=3 maxlength=140 placeholder="Type your message…"></textarea><div>${['⏰ Hurry up!','🎉 New challenge is up!','👀 Zezo is watching','🔥 Who will win today?'].map(t=>`<button class="b s d" onclick="$('#lm').value=this.textContent">${t}</button>`).join('')}</div><button class="b gr" onclick="sendMsg()">Send to everyone 📢</button></div>`;
  }
  if(tab=='score'){
   h+=['lilly','asser'].map(p=>`<div class=panel style="border-color:${PC[p]}"><b style="color:${PC[p]}">${cap(p)}</b><p class=big style="color:${PC[p]}">${sc(p)}</p><div class=grid2><button class="b d" onclick="bump('${p}',-1)">− 1</button><button class="b d" onclick="bump('${p}',1)">+ 1</button></div><small class=c>Or type the exact total:</small><input type=number value="${sc(p)}" onchange="setp('bonus/${p}',+this.value-sc0('${p}'))"></div>`).join('');
@@ -186,7 +248,8 @@ function adm(d,T,cur,cl,w){
  }
  if(tab=='set'){
   h+=`<div class=panel><small class=c>Start date (Day 1)</small><input type=date value="${S.start}" onchange="setp('start',this.value)"><small class=c>New challenge time (hour 0-23)</small><input type=number min=0 max=23 value="${S.hour??4}" onchange="setp('hour',Math.min(23,Math.max(0,+this.value||0)))"><small class=c>Master PIN</small><input value="${esc(S.pin)}" onchange="setp('pin',this.value)"></div>
-  <button class="b d" onclick="resetS()">Reset season</button>${DB?'':'<p style="color:#ff8a95">Sync is OFF: add your Firebase URL in index.html (DB constant).</p>'}`;
+  <div class=panel><b>🎬 Preview effects</b><br><small class=c>Plays on this phone only. Also unlocks sound.</small><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px"><button class="b gr" style="margin:0;padding:10px 4px;font-size:15px" onclick="showWin('YOU WON!','Day 1 · +3 points')">Win</button><button class="b" style="margin:0;padding:10px 4px;font-size:15px" onclick="showLose('Asser')">Lose</button><button class="b d" style="margin:0;padding:10px 4px;font-size:15px" onclick="banner('Hello from Zezo!')">Message</button></div></div>
+  <button class="b d" onclick="resetS()">Reset season</button>${ok?'':'<p style="color:#ff8a95">📡 Not connected to the database right now.</p>'}`;
  }
  return h+board()}
 function sv(i){let t=$('#et').value.trim()||'Untitled',x=$('#ed').value.replace(/\|/g,'/');ei=-1;setp('ch/'+i,t.replace(/\|/g,'/')+'|'+x)}
@@ -194,7 +257,128 @@ function mv(i,k){let a=[...S.ch],j=i+k;if(j<0||j>=a.length)return;[a[i],a[j]]=[a
 function del(i){if(S.ch.length<2||!confirm('Delete this challenge?'))return;let a=[...S.ch];a.splice(i,1);ei=-1;setp('ch',a)}
 function addc(){let a=[...S.ch,'New challenge|Describe it'];ei=a.length-1;setp('ch',a)}
 function restoreC(){if(!confirm('Replace ALL challenges with the default list? Your edits will be lost.'))return;ei=-1;setp('ch',[...C])}
-function resetS(){if(!confirm('Reset the whole season? Scores and wins are erased.'))return;['win','claim','custom'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
+function resetS(){if(!confirm('Reset the whole season? Scores and wins are erased.'))return;['win','claim','custom','evt','msg'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
+// ===================== winner race, messages, effects =====================
+let fxT=0,raf=0,bt=0,AC=null,OUT=null,mute=localStorage.mute==1;
+async function claimWin(){
+ cf=0;let d=curDay();
+ if(!db||!ok){alert('You are offline. Connect to the internet to play.');return render()}
+ busy=1;render();
+ try{
+  const r=await db.ref('win/d'+d).transaction(c=>c===null?who:undefined); // only the FIRST confirm can write
+  busy=0;
+  if(r.committed){const id=Date.now()+'-'+who;localStorage.lastEvt=id;db.ref('evt').set({id,day:d,winner:who,ts:SV.TIMESTAMP});fxResult(who,d)}
+  else{const w=r.snapshot.val();if(w&&w!='none'){sup=d+':'+w;fxResult(w,d)}}
+ }catch(e){busy=0;alert('Something went wrong. Try again.')}
+ render();
+}
+function onEvt(e){
+ if(!e||!e.id||e.id===localStorage.lastEvt)return;
+ localStorage.lastEvt=e.id;
+ if(typeof e.ts!='number'||Date.now()+off-e.ts>60000)return; // ignore old results
+ if(sup===e.day+':'+e.winner){sup='';return}
+ fxResult(e.winner,e.day);
+}
+function fxResult(w,day){
+ if(!who)return;
+ if(who=='zezo')showWin(cap(w).toUpperCase()+' WINS!','Day '+day+' · +3 points for '+cap(w));
+ else if(w==who)showWin('YOU WON!','Day '+day+' · +3 points');
+ else showLose(cap(w));
+}
+function sendMsg(){
+ let t=$('#lm').value.trim().slice(0,140);if(!t)return;$('#lm').value='';
+ let m={id:Date.now()+'-z',text:t,ts:db?SV.TIMESTAMP:Date.now()};
+ if(db)db.ref('msg').set(m).catch(()=>alert('Could not send. Check your connection.'));else onMsg(m);
+}
+function onMsg(m){
+ if(!m||!m.id||m.id===localStorage.lastMsg)return;
+ localStorage.lastMsg=m.id;
+ if(typeof m.ts!='number'||Date.now()+off-m.ts>6e5)return;
+ banner(m.text);
+}
+function banner(t){
+ let b=$('#bn');if(!b){b=document.createElement('div');b.id='bn';b.onclick=()=>b.classList.remove('show');document.body.append(b)}
+ b.classList.remove('show');
+ b.innerHTML=`<div class=bi><span class=bell>📢</span><div><small>MESSAGE FROM ZEZO</small><div class=bt>${esc(t)}</div></div><i class=bp></i></div>`;
+ void b.offsetWidth;b.classList.add('show');
+ sfx('msg');vib([60,40,60]);clearTimeout(bt);bt=setTimeout(()=>b.classList.remove('show'),8000);
+}
+// ---------- overlay
+function fx(cls,html,btn){
+ clearFx(1);let e=document.createElement('div');e.id='fx';e.className=cls;
+ e.innerHTML=html+`<button class="b ${cls=='fw'?'gr':'d'}" style="max-width:260px;margin-top:24px" onclick="clearFx()">${btn}</button>`;
+ document.body.append(e);fxT=setTimeout(()=>clearFx(),11000);return e;
+}
+function clearFx(now){
+ clearTimeout(fxT);cancelAnimationFrame(raf);let e=$('#fx');if(!e)return;
+ if(now)e.remove();else{e.classList.add('out');setTimeout(()=>e.remove(),400)}
+}
+function showWin(title,sub){
+ let e=fx('fw',`<div class=rr></div><canvas></canvas><div class=tr>🏆</div><div class=wt>${esc(title)}</div><p class=sub>${esc(sub)}</p>`,'Yay! 🎉');
+ confetti(e.querySelector('canvas'));sfx('win');vib([80,50,80,50,240]);
+}
+function showLose(name){
+ let e=fx('fl',`<div class=fl-flash></div><div class=sad>😭</div><div class=lt2>YOU LOST</div><p class=sub>${esc(name)} was faster.<br>Better luck tomorrow!</p>`,'Ouch 😢');
+ for(let i=0;i<36;i++){let r=document.createElement('i');r.className='rain';r.textContent=i%4?'💧':'💔';r.style.cssText=`left:${Math.random()*100}%;font-size:${14+Math.random()*16|0}px;animation-duration:${2+Math.random()*2.5}s;animation-delay:${Math.random()*2.5}s;--rt:${(Math.random()*120-60)|0}deg`;e.append(r)}
+ sfx('lose');vib([300,120,300,120,600]);
+}
+function confetti(cv){
+ const r=Math.min(devicePixelRatio||1,2),x=cv.getContext('2d'),W=cv.width=innerWidth*r,H=cv.height=innerHeight*r,
+  cols=['#ffd76a','#2ecc71','#ff4757','#ffffff','#7dffa8','#ff9fb0'];let P=[];
+ const mk=(px,py,vx,vy)=>P.push({x:px,y:py,vx,vy,w:6+Math.random()*8,h:4+Math.random()*6,a:Math.random()*6.28,va:(Math.random()-.5)*.4,c:cols[Math.random()*cols.length|0]});
+ for(let i=0;i<90;i++){mk(0,H,(3+Math.random()*8)*r,-(8+Math.random()*12)*r);mk(W,H,-(3+Math.random()*8)*r,-(8+Math.random()*12)*r)}
+ setTimeout(()=>{for(let i=0;i<90;i++){let a=Math.random()*6.28,s=(3+Math.random()*8)*r;mk(W/2,H*.32,Math.cos(a)*s,Math.sin(a)*s)}},900);
+ const t0=performance.now();
+ (function step(t){
+  x.clearRect(0,0,W,H);let el=t-t0;
+  if(el<5000&&Math.random()<.5)mk(Math.random()*W,-10,(Math.random()-.5)*2*r,(2+Math.random()*3)*r);
+  for(const p of P){p.vy+=.3*r;p.vx*=.992;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.scale(1,Math.cos(p.a*2));x.fillStyle=p.c;x.fillRect(-p.w*r/2,-p.h*r/2,p.w*r,p.h*r);x.restore()}
+  P=P.filter(p=>p.y<H+30);
+  if(P.length||el<5000)raf=requestAnimationFrame(step);
+ })(t0);
+}
+// ---------- sound (synthesised, no files)
+function ac(){
+ try{if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();OUT=AC.createDynamicsCompressor();OUT.connect(AC.destination)}
+  if(AC.state=='suspended')AC.resume()}catch(e){}
+ return AC;
+}
+['pointerdown','touchend','click','keydown'].forEach(k=>addEventListener(k,ac,{passive:true}));
+function tn(f,t,d,o={}){
+ const a=AC,s=a.currentTime+t,os=a.createOscillator(),g=a.createGain(),fl=a.createBiquadFilter(),v=o.v??.2,rel=o.rel??.08;
+ os.type=o.type||'sine';os.frequency.setValueAtTime(f,s);if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,s+d);
+ if(o.vib){let l=a.createOscillator(),lg=a.createGain();l.frequency.value=o.vib;lg.gain.value=f*.025;l.connect(lg);lg.connect(os.frequency);l.start(s);l.stop(s+d+.1)}
+ fl.type='lowpass';fl.frequency.value=o.lp||9000;
+ g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(v,s+.015);g.gain.setValueAtTime(v,s+Math.max(d-rel,.03));g.gain.exponentialRampToValueAtTime(.0001,s+d);
+ os.connect(fl);fl.connect(g);g.connect(OUT);os.start(s);os.stop(s+d+.05);
+}
+function nz(t,d,o={}){
+ const a=AC,n=a.sampleRate*d|0,b=a.createBuffer(1,n,a.sampleRate),c=b.getChannelData(0),s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain(),st=a.currentTime+t;
+ for(let i=0;i<n;i++)c[i]=Math.random()*2-1;
+ s.buffer=b;f.type=o.type||'bandpass';f.frequency.setValueAtTime(o.f||2000,st);if(o.to)f.frequency.exponentialRampToValueAtTime(o.to,st+d);f.Q.value=o.q||.8;
+ g.gain.setValueAtTime(.0001,st);g.gain.exponentialRampToValueAtTime(o.v||.2,st+(o.at||.05));g.gain.exponentialRampToValueAtTime(.0001,st+d);
+ s.connect(f);f.connect(g);g.connect(OUT);s.start(st);
+}
+function sfx(k){
+ if(mute||!ac())return;
+ if(k=='win'){
+  nz(0,.5,{f:400,to:3500,v:.18});                                   // whoosh
+  [523.25,659.25,783.99].forEach((f,i)=>tn(f,i*.13,.2,{type:'square',v:.1,lp:3200})); // da-da-da
+  [523.25,659.25,783.99,1046.5].forEach(f=>tn(f,.42,1,{type:'triangle',v:.17}));    // DAAA chord
+  tn(1046.5,.42,1,{type:'square',v:.08,lp:3500,vib:6});
+  for(let i=0;i<16;i++)tn(1500+Math.random()*2600,.5+i*.07,.25,{v:.045}); // sparkles
+  nz(.5,2.4,{f:3000,q:.6,v:.13,at:.5});                              // applause
+ }else if(k=='lose'){
+  nz(0,.3,{type:'lowpass',f:220,v:.4});                              // thud
+  tn(120,0,.4,{type:'sawtooth',v:.16,lp:900});tn(113,0,.4,{type:'sawtooth',v:.16,lp:900}); // buzzer
+  [[233,.45],[220,.9],[208,1.35]].forEach(([f,t])=>tn(f,t,.38,{type:'sawtooth',v:.2,lp:750,rel:.1})); // wah wah wah
+  tn(196,1.8,1.6,{type:'sawtooth',v:.22,lp:700,to:140,vib:5,rel:.5}); // waaaah
+ }else{
+  tn(1174.7,0,.5,{v:.18,rel:.4});tn(2349,0,.3,{v:.04});tn(880,.22,.8,{v:.18,rel:.65});
+ }
+}
+const vib=p=>{try{!mute&&navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
+function tsnd(){mute=!mute;localStorage.mute=mute?1:0;$('#snd').textContent=mute?'🔇':'🔊';if(!mute)sfx('msg')}
 // loading screen
 let g=$('#gl');['☥','✦','☥','✦','☥'].forEach((c,i)=>{let e=document.createElement('i');e.textContent=c;e.style.animationDelay=i*.55+'s';g.append(e)});
 (()=>{let p=$('#sp');for(let i=0;i<26;i++){let e=document.createElement('i');e.className='sp';e.style.cssText=`left:${Math.random()*100}%;--dx:${(Math.random()*60-30)|0}px;animation-duration:${3+Math.random()*3}s;animation-delay:${Math.random()*3}s`;p.append(e)}
@@ -206,5 +390,5 @@ setTimeout(()=>{$('#ld').style.opacity=0;setTimeout(()=>$('#ld').remove(),800)},
  let mf={name:'Al-Le3ba',short_name:'Al-Le3ba',start_url:location.href.split('#')[0],display:'standalone',background_color:'#080506',theme_color:'#080506',icons:[{src:u,sizes:'512x512',type:'image/png'}]};
  let k=document.createElement('link');k.rel='manifest';k.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(mf));document.head.append(k)})();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-mig();render();pull();setInterval(pull,8000);addEventListener('online',pull);
+mig();render();startSync();$('#snd').textContent=mute?'🔇':'🔊';
 </script></body></html>
