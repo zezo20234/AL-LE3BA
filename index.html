@@ -207,7 +207,7 @@ function adm(d,cur){
   h+=`<div class=nav><button class="b d" onclick="go(-1)">◀</button><select onchange="zd=+this.value;render()">${Array.from({length:cur+14},(_,i)=>`<option value=${i+1} ${i+1==d?'selected':''}>Day ${i+1}${i+1==cur?' (today)':''}</option>`).join('')}</select><button class="b d" onclick="go(1)">▶</button></div>`;
   h+=`<div class=panel><b>➕ ${d==cur?'What are today’s challenges?':'What are Day '+d+'’s challenges?'}</b><input id=nt placeholder="Challenge title"><textarea id=nd rows=2 placeholder="What to do (optional)"></textarea><button class="b gr" onclick="addC(${d})">+ Add challenge</button><small class=c>${L.length?L.length+' added for Day '+d+'. Add as many as you want.':'Nothing added yet. Players will see “Zezo didn’t add yet”.'}</small></div>`;
   h+=L.map((c,i)=>{let w=(S.win||{})[c.id];
-   return `<div class=panel><small class=c>CHALLENGE ${i+1}</small><br><b>${esc(c.t)}</b>${c.d?`<p>${esc(c.d)}</p>`:''}<p><small class=c>${w?(w=='none'?'No winner':'🏁 Winner: '+cap(w)):'The race is on… first to confirm gets +3'}</small></p><button class="b s d" onclick="ei=(ei=='${c.id}'?'':'${c.id}');render()">✎ Edit</button><button class="b s d" onclick="delC(${d},'${c.id}')">🗑 Delete</button>${w?`<button class="b s d" onclick="confirm('Undo this winner? The race opens again.')&&setp('win/${c.id}',null)">Undo winner</button>`:''}${ei==c.id?`<input id=et value="${esc(c.t)}" placeholder="Title"><textarea id=ed rows=3 placeholder="What to do">${esc(c.d||'')}</textarea><button class="b s gr" onclick="sv(${d},'${c.id}')">Save</button><button class="b s d" onclick="ei='';render()">Cancel</button>`:''}</div>`}).join('');
+   return `<div class=panel><small class=c>CHALLENGE ${i+1}</small><br><b>${esc(c.t)}</b>${c.d?`<p>${esc(c.d)}</p>`:''}<p><small class=c>${w?(w=='none'?'No winner':'🏁 Winner: '+cap(w)):'The race is on… first to confirm gets +3'}</small></p><small class=c>👑 Pick the winner yourself (overrides the race):</small><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 8px">${[['lilly','Lilly'],['asser','Asser'],['none','No winner']].map(([p,l])=>`<button class="b s ${p=='asser'?'gr':p=='none'?'d':''}${w==p?' on':''}" style="margin:0;display:block;width:auto;padding:10px 2px" onclick="setWin(${d},'${c.id}','${p}')">${w==p?'✔ ':''}${l}</button>`).join('')}</div><button class="b s d" onclick="ei=(ei=='${c.id}'?'':'${c.id}');render()">✎ Edit</button><button class="b s d" onclick="delC(${d},'${c.id}')">🗑 Delete</button>${w?`<button class="b s d" onclick="confirm('Undo this winner? The race opens again.')&&setp('win/${c.id}',null)">Undo winner</button>`:''}${ei==c.id?`<input id=et value="${esc(c.t)}" placeholder="Title"><textarea id=ed rows=3 placeholder="What to do">${esc(c.d||'')}</textarea><button class="b s gr" onclick="sv(${d},'${c.id}')">Save</button><button class="b s d" onclick="ei='';render()">Cancel</button>`:''}</div>`}).join('');
  }
  if(tab=='live'){
   h+=`<div class=panel><b>📢 Live message</b><br><small class=c>Drops from the top of every phone instantly, with a sound.</small><textarea id=lm rows=3 maxlength=140 placeholder="Type your message…"></textarea><div>${['⏰ Hurry up!','🎉 New challenge is up!','👀 Zezo is watching','🔥 Who will win today?'].map(t=>`<button class="b s d" onclick="$('#lm').value=this.textContent">${t}</button>`).join('')}</div><button class="b gr" onclick="sendMsg()">Send to everyone 📢</button></div>`;
@@ -223,6 +223,14 @@ function adm(d,cur){
  return h+board()}
 function addC(d){let t=$('#nt').value.trim();if(!t)return alert('Type a title first');setp('chal/d'+d+'/'+Date.now().toString(36),{t,d:$('#nd').value.trim(),o:Date.now()})}
 function sv(d,id){let t=$('#et').value.trim();if(!t)return alert('Type a title first');let c=cl(d).find(x=>x.id==id)||{};ei='';setp('chal/d'+d+'/'+id,{t,d:$('#ed').value.trim(),o:c.o||Date.now()})}
+// Zezo's override: set (or change) the winner of a challenge directly
+function setWin(d,id,p){
+ let c=cl(d).find(x=>x.id==id)||{},cur=(S.win||{})[id];
+ if(cur==p)return;
+ if(cur&&!confirm('Change the winner of this challenge to '+(p=='none'?'nobody':cap(p))+'?'))return;
+ setp('win/'+id,p);
+ if(p!='none'&&db&&SV){const eid=Date.now()+'-zezo';localStorage.lastEvt=eid;db.ref('evt').set({id:eid,day:d,winner:p,t:c.t||'',ts:SV.TIMESTAMP}).catch(()=>{})}
+}
 function delC(d,id){if(!confirm('Delete this challenge?'))return;setp('win/'+id,null);setp('chal/d'+d+'/'+id,null)}
 function resetS(){if(!confirm('Reset the whole season? Scores, wins and challenges are erased.'))return;['win','claim','chal','evt','msg'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
 // ===================== winner race, messages, effects =====================
