@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07060a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Al-Le3ba">
+<title>Al-Le3ba · Season 1</title>
+<style>
+:root{--g:#d4af37;--bg:#07060a}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(circle at 50% 0,#2a2108,var(--bg) 60%);color:#f3e7c0;font-family:Georgia,serif;min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#ld{position:fixed;inset:0;background:#000;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .8s}
+#ld svg{width:170px;filter:drop-shadow(0 0 18px var(--g));animation:gl 2s infinite alternate}
+@keyframes gl{to{filter:drop-shadow(0 0 34px #ffe27a)}}
+.lid{transform-origin:50% 50%;animation:op 1.4s ease-out both}@keyframes op{from{transform:scaleY(.05)}}
+.gl{letter-spacing:14px;font-size:22px;color:#3a3010}.gl i{font-style:normal;animation:li .5s forwards}
+@keyframes li{to{color:var(--g);text-shadow:0 0 10px var(--g)}}
+.bar{width:200px;height:4px;background:#2a2410;border-radius:4px;overflow:hidden}.bar b{display:block;height:100%;background:var(--g);animation:fill 3s linear forwards}
+@keyframes fill{from{width:0}to{width:100%}}
+#ld h1{margin:0;font-size:30px;letter-spacing:6px;color:var(--g)}#ld small{color:#a38b3a;letter-spacing:3px}
+header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px}
+header h3{margin:0;color:var(--g);letter-spacing:3px;font-size:15px}
+.rf{background:none;border:1px solid #5a4a18;color:var(--g);border-radius:50%;width:26px;height:26px;font-size:14px;padding:0}
+.dot{width:9px;height:9px;border-radius:50%;background:#a33;display:inline-block}.dot.on{background:#3c6}
+#app{max-width:480px;margin:auto;padding:8px 16px 40px}
+.card{border:2px solid var(--g);border-radius:16px;padding:16px;margin:12px 0;background:#120f06cc;box-shadow:0 0 22px #d4af3722}
+.card h2{margin:6px 0;color:#fff2b8}.card p{margin:4px 0;line-height:1.5}
+.b{display:block;width:100%;background:linear-gradient(#e6c458,#b8921f);color:#1a1303;border:0;border-radius:12px;padding:13px;font-size:17px;font-weight:bold;margin:8px 0}
+.b.s{display:inline-block;width:auto;padding:8px 12px;font-size:14px;margin:4px 4px 4px 0}.b.d{background:#3a3010;color:var(--g)}
+.sb{display:flex;gap:10px}.sb div{flex:1;text-align:center;border:1px solid #5a4a18;border-radius:14px;padding:12px}.sb big{display:block;font-size:34px;color:var(--g)}
+.ok{text-align:center;padding:12px;border-radius:12px;background:#1d3a1d;margin:8px 0}
+input,textarea,select{width:100%;background:#0c0a04;color:#f3e7c0;border:1px solid #5a4a18;border-radius:8px;padding:9px;margin:4px 0;font:inherit}
+h4{color:var(--g);margin:18px 0 4px}small.c{color:#a38b3a}
+</style></head><body>
+<div id="ld"><svg viewBox="0 0 200 120"><g fill="none" stroke="#d4af37" stroke-width="5" stroke-linecap="round"><g class="lid"><path d="M10 60Q100 -15 190 60Q100 135 10 60Z"/><circle cx="100" cy="60" r="24" fill="#d4af37" stroke="none"/><circle cx="100" cy="60" r="9" fill="#000" stroke="none"/></g><path d="M100 92v22M70 86L50 108"/></g></svg>
+<h1>AL-LE3BA</h1><small>SEASON ONE</small><div class="gl" id="gl"></div><div class="bar"><b></b></div><small id="lt">The game is about to begin…</small></div>
+<header><button class="rf" onclick="hard()" title="Update">↻</button><h3 id="ttl">AL-LE3BA</h3><span class="dot" id="dot"></span></header>
+<div id="app"></div>
+<script>
+// === Paste your Firebase Realtime Database URL here (no trailing slash). Empty = no sync between phones.
+const DB="";
+const C="Tidy Hero|Make your bed and tidy your desk in 5 minutes.;Tongue Twister|Say 'She sells seashells' 5 times fast with no mistakes.;Jumping Jacks|Do 20 jumping jacks without stopping.;Draw a Pharaoh|Draw a pharaoh mask in 5 minutes.;Kind Act|Do something kind for someone at home.;Balance Master|Stand on one leg for 30 seconds on each leg.;Water Warrior|Drink 4 cups of water today.;Story Time|Tell a 1-minute made-up story about a golden eye.;Sock Toss|Toss rolled socks into a basket: score 5 out of 10.;Read Aloud|Read 2 pages of any book out loud.;Memory Cards|Look at 8 objects for 20 seconds, then name them all.;Plank Time|Hold a plank for 40 seconds.;Riddle Me|Solve 2 riddles from Zezo.;Secret Code|Invent a secret alphabet, write your name in it and teach Zezo.;Silent Minute|Stay completely silent for 2 minutes without laughing.;Cup Tower|Build a 6-cup tower in under 2 minutes.;Math Sprint|Answer 10 math questions in 2 minutes.;Blind Find|Blindfolded, find 3 objects Zezo names.;Spelling Bee|Spell 8 words correctly.;Cook Helper|Help an adult make a snack.;Staring Contest|Win a no-smile staring contest against Zezo.;Memory Master|Memorize 12 objects in 30 seconds.;Plank Boss|Hold a plank for 1 minute 15 seconds.;Code Breaker|Solve a 5-letter cipher Zezo prepares.;Speed Clean|Clean your whole room in 10 minutes.;Twister Pro|Say 3 hard tongue twisters with no mistakes.;Book Report|Tell Zezo the plot of a book in 2 minutes.;Puzzle Run|Finish a 30-piece puzzle in 10 minutes.;Mind Maze|Draw a maze and have Zezo solve it.;The Grand Finale|Three tasks in a row: 20 squats, a riddle, a 30-second balance.".split(";");
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),cap=s=>s[0].toUpperCase()+s.slice(1);
+const td=()=>{let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let S=JSON.parse(localStorage.S||'null')||{start:td(),ch:C,win:{},claim:{},custom:{},bonus:{lilly:0,asser:0},pin:"1234"};
+let Q=JSON.parse(localStorage.Q||'[]'),who=localStorage.who||'',zd=0,ok=0;
+const save=()=>localStorage.S=JSON.stringify(S);
+function setp(p,v){let o=S,k=p.split('/');k.slice(0,-1).forEach(x=>o=o[x]=o[x]||{});o[k.at(-1)]=v;save();Q.push([p,v]);localStorage.Q=JSON.stringify(Q);flush();render()}
+async function flush(){if(!DB)return;try{while(Q.length){let[p,v]=Q[0],r=await fetch(`${DB}/${p}.json`,{method:'PUT',body:JSON.stringify(v)});if(!r.ok)throw 0;Q.shift();localStorage.Q=JSON.stringify(Q)}}catch(e){}}
+async function pull(){if(!DB)return;await flush();if(Q.length){ok=0;return dot()}
+ try{let d=await(await fetch(DB+'/.json')).json();ok=1;if(d){S={...S,...d};S.ch=Object.values(S.ch||C);save()}else await fetch(DB+'/.json',{method:'PUT',body:JSON.stringify(S)});
+ if(!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))render()}catch(e){ok=0}dot()}
+const dot=()=>$('#dot').className='dot'+(ok?' on':'');
+function dayN(){let n=new Date(Date.now()-(S.hour??4)*36e5),[y,m,d]=S.start.split('-').map(Number);return Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())-Date.UTC(y,m-1,d))/864e5)+1}
+const lv=n=>n<=10?['Easy','#cd7f32']:n<=20?['Medium','#c0c0c0']:['Hard','#ffd700'];
+const chal=n=>{let[a,...r]=((S.custom&&S.custom['d'+n])||S.ch[n-1]||'?|').split('|');return[a,r.join('|')]};
+const sc=p=>Object.values(S.win||{}).filter(w=>w==p).length*3+((S.bonus||{})[p]||0);
+function pick(p){if(p=='zezo'&&prompt('Master PIN')!=S.pin)return alert('Wrong PIN');who=localStorage.who=p;render()}
+async function hard(){try{await Promise.all((await navigator.serviceWorker.getRegistrations()).map(r=>r.unregister()));await Promise.all((await caches.keys()).map(k=>caches.delete(k)))}catch(e){}location.reload()}
+function cd(){let t=new Date(),x=new Date(t);x.setHours(S.hour??4,0,0,0);if(x<=t)x.setDate(x.getDate()+1);let s=Math.floor((x-t)/1e3),e=$('#cd');if(e)e.textContent=`Next challenge in ${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`}
+setInterval(cd,1000);
+function render(){const A=$('#app');
+ if(!who){A.innerHTML='<h2 style="text-align:center;color:#d4af37">Who are you?</h2>'+['lilly','asser','zezo'].map(p=>`<button class=b onclick="pick('${p}')">${p=='zezo'?'👑 Zezo (Master)':cap(p)}</button>`).join('')+'<small class=c>This phone will remember your choice.</small>';return}
+ let T=S.ch.length,n=dayN(),cur=Math.min(T,Math.max(1,n)),m=who=='zezo',d=m?(zd||cur):cur,[t,ds]=chal(d),[ln,lc]=lv(d),w=(S.win||{})['d'+d],cl=(S.claim||{})['d'+d]||{};
+ let h=`<small class=c>Playing as ${m?'👑 Zezo':cap(who)}</small><div class=card style="border-color:${lc}"><small style="color:${lc}">${ln.toUpperCase()} · DAY ${d}/${T}</small><h2>${esc(t)}</h2><p>${esc(ds)}</p></div>`;
+ if(n<1)h+=`<div class=ok>Season starts on ${S.start}</div>`;
+ else if(n>T&&!m){let a=sc('lilly'),b=sc('asser');h+=`<div class=ok>🏆 Season complete! ${a==b?"It's a tie!":(a>b?'Lilly':'Asser')+' is the champion!'}</div>`}
+ else if(!m){h+=w?`<div class=ok>${w=='none'?'No winner today':w==who?'🏆 You won! +3':cap(w)+' won today'}</div>`:cl[who]?'<div class=ok>⏳ Waiting for Zezo to confirm…</div>':`<button class="b" onclick="setp('claim/d${d}/${who}',Date.now())">I did it! ✋</button>`;h+='<p style="text-align:center"><small class=c id=cd></small></p>'}
+ h+=`<div class=sb><div>Lilly<big>${sc('lilly')}</big></div><div>Asser<big>${sc('asser')}</big></div></div>`;
+ if(m){let[ct,cds]=[t,ds];h+=`<h4>👑 Master · Day</h4><select onchange="zd=+this.value;render()">${Array.from({length:T},(_,i)=>`<option value=${i+1} ${i+1==d?'selected':''}>Day ${i+1}${i+1==cur?' (today)':''}</option>`).join('')}</select>
+ <p>${['lilly','asser'].map(p=>`${cap(p)}: ${cl[p]?'✋ '+new Date(cl[p]).toLocaleTimeString():'—'}`).join(' · ')}<br>Winner: <b>${w?cap(w):'none yet'}</b></p>
+ <button class="b s" onclick="setp('win/d${d}','lilly')">Lilly won</button><button class="b s" onclick="setp('win/d${d}','asser')">Asser won</button><button class="b s d" onclick="setp('win/d${d}','none')">No winner</button><button class="b s d" onclick="setp('win/d${d}',null)">Undo</button><br>
+ <h4>Scores (type to fix)</h4>${['lilly','asser'].map(p=>`<div style="display:flex;gap:6px;align-items:center">${cap(p)}<input type=number value="${sc(p)}" style="width:80px" onchange="setp('bonus/${p}',+this.value-sc0('${p}'))"><button class="b s d" onclick="setp('bonus/${p}',((S.bonus||{}).${p}||0)+1)">+1</button><button class="b s d" onclick="setp('bonus/${p}',((S.bonus||{}).${p}||0)-1)">−1</button></div>`).join('')}
+ <h4>Edit this challenge</h4><input id=et value="${esc(S.ch[d-1].split('|')[0])}"><textarea id=ed rows=2>${esc(S.ch[d-1].split('|').slice(1).join('|'))}</textarea><button class="b s" onclick="setp('ch/${d-1}',$('#et').value+'|'+$('#ed').value)">Save</button>
+ <h4>Custom one-off (replaces Day ${d})</h4><input id=ct placeholder="Title"><textarea id=cds rows=2 placeholder="Description"></textarea><button class="b s" onclick="$('#ct').value&&setp('custom/d${d}',$('#ct').value+'|'+$('#cds').value)">Send</button><button class="b s d" onclick="setp('custom/d${d}',null)">Remove custom</button>
+ <h4>All challenges</h4>${S.ch.map((c,i)=>`<div style="display:flex;gap:4px;align-items:center;margin:3px 0"><span style="flex:1;font-size:14px">${i+1}. ${esc(c.split('|')[0])}</span><button class="b s d" onclick="mv(${i},-1)">▲</button><button class="b s d" onclick="mv(${i},1)">▼</button><button class="b s d" onclick="zd=${i+1};render();scrollTo(0,0)">✎</button><button class="b s d" onclick="del(${i})">🗑</button></div>`).join('')}<button class="b s" onclick="addc()">+ Add challenge</button>
+ <h4>Settings</h4><small class=c>Start date (Day 1)</small><input type=date value="${S.start}" onchange="setp('start',this.value)"><small class=c>New challenge time (hour 0-23)</small><input type=number min=0 max=23 value="${S.hour??4}" onchange="setp('hour',Math.min(23,Math.max(0,+this.value||0)))"><small class=c>Master PIN</small><input value="${esc(S.pin)}" onchange="setp('pin',this.value)">
+ <button class="b d" onclick="resetS()">Reset season</button>${DB?'':'<p style="color:#e88">Sync is OFF: add your Firebase URL in index.html (DB constant).</p>'}`}
+ h+=`<p style="text-align:center"><small class=c style="cursor:pointer" onclick="confirm('Change player on this phone?')&&(localStorage.who=who='',render())">change player</small></p>`;
+ A.innerHTML=h;cd()}
+function mv(i,k){let a=[...S.ch],j=i+k;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];setp('ch',a)}
+function del(i){if(S.ch.length<2||!confirm('Delete this challenge?'))return;let a=[...S.ch];a.splice(i,1);zd=Math.min(zd,a.length);setp('ch',a)}
+function addc(){let a=[...S.ch,'New challenge|Describe it'];zd=a.length;setp('ch',a);scrollTo(0,0)}
+function resetS(){if(!confirm('Reset the whole season? Scores and wins are erased.'))return;['win','claim','custom'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
+const sc0=p=>sc(p)-((S.bonus||{})[p]||0);
+// bonus helper fix
+window.setp0=setp;
+// loading screen
+let g=$('#gl');['☥','✦','☥','✦','☥'].forEach((c,i)=>{let e=document.createElement('i');e.textContent=c;e.style.animationDelay=i*.55+'s';g.append(e)});
+setTimeout(()=>{$('#ld').style.opacity=0;setTimeout(()=>$('#ld').remove(),800)},3100);
+// icon + manifest
+(()=>{let c=document.createElement('canvas');c.width=c.height=512;let x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,512,512);x.strokeStyle='#d4af37';x.lineWidth=18;x.beginPath();x.moveTo(60,256);x.quadraticCurveTo(256,40,452,256);x.quadraticCurveTo(256,472,60,256);x.stroke();x.fillStyle='#d4af37';x.beginPath();x.arc(256,256,70,0,7);x.fill();x.fillStyle='#000';x.beginPath();x.arc(256,256,26,0,7);x.fill();
+ let u=c.toDataURL();let l=document.createElement('link');l.rel='apple-touch-icon';l.href=u;document.head.append(l);
+ let mf={name:'Al-Le3ba',short_name:'Al-Le3ba',start_url:location.href.split('#')[0],display:'standalone',background_color:'#07060a',theme_color:'#07060a',icons:[{src:u,sizes:'512x512',type:'image/png'}]};
+ let k=document.createElement('link');k.rel='manifest';k.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(mf));document.head.append(k)})();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+render();pull();setInterval(pull,8000);addEventListener('online',pull);
+</script></body></html>
