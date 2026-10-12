@@ -3,6 +3,7 @@
 <meta name="theme-color" content="#080506"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Al-Le3ba">
 <title>Al-Le3ba · Season 1</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" href="icon-192.png">
 <style>
 :root{--r:#ff4757;--rd:#c4202e;--g:#2ecc71;--gd:#1a9a4f;--bg:#080506;--tx:#f6eeee;--mu:#b58a8e;--ln:#4a2a2e}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -51,7 +52,7 @@ header h3{margin:0;background:linear-gradient(90deg,var(--g),var(--r));-webkit-b
 .ok{text-align:center;padding:12px;border-radius:12px;background:#12351f;border:1px solid var(--gd);margin:8px 0}
 input,textarea,select{width:100%;background:#0d0708;color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:10px;margin:4px 0;font:inherit;font-size:16px}
 h4{color:var(--g);margin:16px 0 4px}small.c{color:var(--mu)}
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:10px 0}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:10px 0}
 .tab{background:#1a0d10;color:var(--mu);border:1px solid var(--ln);border-radius:10px;padding:9px 1px;font-size:11px;font-family:inherit}
 .tab.on{background:linear-gradient(#3fe283,var(--gd));color:#04140a;border-color:var(--g);font-weight:bold}
 .nav{display:flex;gap:6px;align-items:center}.nav select{flex:1}.nav .b{width:48px;padding:10px 0;margin:4px 0}
@@ -134,51 +135,17 @@ details summary{color:var(--g);padding:8px 0}
 <script>
 // Firebase Realtime Database (live sync between all phones)
 const FB={apiKey:"AIzaSyAfm1SkQSqwpf-82kWrsTgoiXgk2DMOSpU",authDomain:"retrocallapp.firebaseapp.com",databaseURL:"https://retrocallapp-default-rtdb.firebaseio.com",projectId:"retrocallapp",storageBucket:"retrocallapp.firebasestorage.app",messagingSenderId:"364436629934",appId:"1:364436629934:web:080df2aa03fad1f6fcc03f"};
-const CV=2; // challenge list version: bump to push a new default list to every phone
-const C=[
-// EASY (days 1-10)
-"Bed Boss|Make your bed neatly AND clear your desk in 5 minutes. Zezo inspects it.",
-"Tongue Twister|Say 'She sells seashells by the seashore' 5 times fast with no mistakes.",
-"Jumping Jacks|Do 25 jumping jacks without stopping.",
-"Pharaoh Artist|Draw a pharaoh mask in 5 minutes. Make it colourful!",
-"Kindness Quest|Do 2 kind things for your family today and tell Zezo what they were.",
-"Flamingo Stand|Stand on one leg with your arms out: 30 seconds on each leg, no wobbling.",
-"Water Warrior|Drink 4 cups of water today. Zezo counts.",
-"Golden Story|Tell a 1-minute made-up story about a golden eye that must include a dragon.",
-"Sock Basket|Stand 2 big steps away and toss rolled socks into a basket: score 5 out of 10.",
-"Funny Reader|Read 2 pages out loud, using a different silly voice on every paragraph.",
-// MEDIUM (days 11-20)
-"Memory Cards|Look at 10 objects for 20 seconds, then name at least 9 of them.",
-"Plank Time|Hold a plank for 45 seconds.",
-"Riddle Duel|Solve 3 riddles from Zezo. One wrong answer and you fail.",
-"Secret Code|Invent your own secret alphabet, write your name in it and teach Zezo to read it.",
-"Silent Ninja|Stay completely silent for 2 minutes while Zezo tries to make you laugh.",
-"Cup Pyramid|Build a 6-cup pyramid in under 90 seconds.",
-"Math Sprint|Answer 12 math questions in 2 minutes.",
-"Blind Find|Blindfolded, find 3 objects Zezo names in under 90 seconds.",
-"Spelling Bee|Spell 10 words picked by Zezo, no mistakes allowed.",
-"Chef Helper|Help an adult cook: set the table AND clear up after the meal.",
-// HARD (days 21-30)
-"Staring Contest|Beat Zezo in a no-blinking, no-smiling staring contest.",
-"Memory Master|Memorize 15 objects in 30 seconds, then name at least 12.",
-"Plank Boss|Hold a plank for 1 minute 15 seconds.",
-"Code Breaker|Crack a 5-letter cipher that Zezo prepares, in under 5 minutes.",
-"Speed Clean|Clean your whole room in 10 minutes and pass Zezo's inspection.",
-"Twister Pro|Say 3 hard tongue twisters in a row with no mistakes.",
-"Book Report|Tell Zezo the plot of a book in 2 minutes, then answer 2 questions about it.",
-"Puzzle Run|Finish a 30-piece puzzle in under 10 minutes.",
-"Mind Maze|Draw a maze that takes Zezo more than 1 minute to solve.",
-"The Grand Finale|Three in a row with no break: 20 squats, one riddle, then a 30-second one-leg balance."
-];
+const CV=4; // v4: no built-in challenges; Zezo adds them for each day
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),cap=s=>s[0].toUpperCase()+s.slice(1);
 const td=()=>{let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const PC={lilly:'#ff5a67',asser:'#2ecc71'};
-let S=JSON.parse(localStorage.S||'null')||{start:td(),ch:[...C],cv:CV,win:{},claim:{},custom:{},bonus:{lilly:0,asser:0},pin:"1234"};
-let who=localStorage.who||'',zd=0,ok=0,cf=0,busy=0,tab=localStorage.tab||'today',ei=-1,db=null,SV=null,off=0,sup='';
+let S=JSON.parse(localStorage.S||'null')||{start:td(),cv:CV,win:{},claim:{},chal:{},bonus:{lilly:0,asser:0},pin:"1234"};
+let who=localStorage.who||'',zd=0,ok=0,cf='',busy='',tab=localStorage.tab||'today',ei='',db=null,SV=null,off=0,sup='';
+if(!['today','live','score','set'].includes(tab))tab='today';
 const save=()=>localStorage.S=JSON.stringify(S);
 const rr=()=>{if(!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))render()};
 function setp(p,v){let o=S,k=p.split('/');k.slice(0,-1).forEach(x=>o=o[x]=o[x]||{});v===null?delete o[k.at(-1)]:o[k.at(-1)]=v;save();if(db)db.ref(p).set(v).catch(()=>{});render()}
-function mig(){if((S.cv||0)>=CV)return;S.ch=[...C];S.cv=CV;save();if(db){db.ref('ch').set(S.ch);db.ref('cv').set(CV)}}
+function mig(){if((S.cv||0)>=CV)return;S.cv=CV;save();if(db){['ch','custom','pick'].forEach(k=>db.ref(k).remove().catch(()=>{}));db.ref('cv').set(CV)}}
 function startSync(){
  if(!window.firebase)return dot();
  try{
@@ -189,49 +156,58 @@ function startSync(){
  }catch(e){db=null}
 }
 function applyRemote(d){
- S={start:S.start,pin:S.pin,cv:S.cv,win:{},claim:{},custom:{},pick:{},...d};
- S.ch=Object.values(S.ch||C).filter(Boolean);S.bonus={lilly:0,asser:0,...(d.bonus||{})};
+ S={start:S.start,pin:S.pin,cv:S.cv,win:{},claim:{},chal:{},...d};
+ S.bonus={lilly:0,asser:0,...(d.bonus||{})};
  mig();save();rr();
  if(d.evt)onEvt(d.evt);
  if(d.msg)onMsg(d.msg);
 }
 const dot=()=>{let e=$('#dot');if(e)e.className='dot'+(ok?' on':'')}
 function dayN(){let n=new Date(Date.now()-(S.hour??4)*36e5),[y,m,d]=S.start.split('-').map(Number);return Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())-Date.UTC(y,m-1,d))/864e5)+1}
-const curDay=()=>Math.min(S.ch.length,Math.max(1,dayN()));
-const lv=n=>n<=10?['Easy','#2ecc71']:n<=20?['Medium','#ff9f43']:['Hard','#ff4757'];
-const ci=n=>{let p=(S.pick||{})['d'+n];return p!=null&&S.ch[p]?+p:n-1};
-const chal=n=>{let[a,...r]=((S.custom&&S.custom['d'+n])||S.ch[ci(n)]||'?|').split('|');return[a,r.join('|')]};
+const curDay=()=>Math.max(1,dayN());
+// challenges for a day, in the order Zezo added them
+const cl=n=>Object.entries((S.chal||{})['d'+n]||{}).filter(([,v])=>v&&v.t).map(([id,v])=>({id,...v})).sort((a,b)=>(a.o||0)-(b.o||0));
 const sc=p=>Object.values(S.win||{}).filter(w=>w==p).length*3+((S.bonus||{})[p]||0);
 const sc0=p=>sc(p)-((S.bonus||{})[p]||0);
 function pick(p){if(p=='zezo'&&prompt('Master PIN')!=S.pin)return alert('Wrong PIN');who=localStorage.who=p;render()}
 async function hard(){try{await Promise.all((await navigator.serviceWorker.getRegistrations()).map(r=>r.unregister()));await Promise.all((await caches.keys()).map(k=>caches.delete(k)))}catch(e){}location.reload()}
-function cd(){let t=new Date(),x=new Date(t);x.setHours(S.hour??4,0,0,0);if(x<=t)x.setDate(x.getDate()+1);let s=Math.floor((x-t)/1e3),e=$('#cd');if(e)e.textContent=`Next challenge in ${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`}
+function cd(){let t=new Date(),x=new Date(t);x.setHours(S.hour??4,0,0,0);if(x<=t)x.setDate(x.getDate()+1);let s=Math.floor((x-t)/1e3),e=$('#cd');if(e)e.textContent=`Next day starts in ${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`}
 setInterval(cd,1000);
-const go=k=>{zd=Math.min(S.ch.length,Math.max(1,(zd||curDay())+k));render()};
-const setTab=k=>{tab=localStorage.tab=k;ei=-1;render()};
+const go=k=>{zd=Math.min(curDay()+14,Math.max(1,(zd||curDay())+k));render()};
+const setTab=k=>{tab=localStorage.tab=k;ei='';render()};
 function bump(p,k){setp('bonus/'+p,((S.bonus||{})[p]||0)+k)}
 function render(){const A=$('#app');
  if(!who){A.innerHTML='<h2 style="text-align:center;color:#ff6b78">Who are you?</h2>'+['lilly','asser','zezo'].map(p=>`<button class="b ${p=='asser'?'gr':''}" onclick="pick('${p}')">${p=='zezo'?'👑 Zezo (Master)':cap(p)}</button>`).join('')+'<small class=c>This phone will remember your choice.</small>';return}
- let T=S.ch.length,n=dayN(),cur=curDay(),m=who=='zezo',d=m?(zd||cur):cur,[t,ds]=chal(d),[ln,lc]=lv(ci(d)+1),w=(S.win||{})['d'+d],cl=(S.claim||{})['d'+d]||{};
+ let n=dayN(),cur=curDay(),m=who=='zezo',d=m?(zd||cur):cur;
  let h=`<small class=c>Playing as ${m?'👑 Zezo':cap(who)}</small>`;
- if(!m||tab=='today')h+=`<div class=card style="border-color:${lc};box-shadow:0 0 22px ${lc}33"><small style="color:${lc}">${ln.toUpperCase()} · DAY ${d}/${T}</small><h2>${esc(t)}</h2><p>${esc(ds)}</p></div>`;
  if(!m){
   if(n<1)h+=`<div class=ok>Season starts on ${S.start}</div>`;
-  else if(n>T){let a=sc('lilly'),b=sc('asser');h+=`<div class=ok>🏆 Season complete! ${a==b?"It's a tie!":(a>b?'Lilly':'Asser')+' is the champion!'}</div>`}
-  else{h+=w?`<div class=ok>${w=='none'?'No winner today':w==who?'🏆 You won today! +3':'😔 '+cap(w)+' was faster today'}</div>`:busy?'<div class=ok>⏳ Checking…</div>':!ok?'<div class=ok>📡 Connecting… you need internet to play</div>':cf?`<div class=panel><b>Are you sure you did it?</b><p>Be honest! The first one to confirm wins today's +3 points.</p><div class=grid2><button class="b gr" onclick="claimWin()">Yes, I won! 🏆</button><button class="b d" onclick="cf=0;render()">Not yet</button></div></div>`:`<button class="b go ${who=='asser'?'gr':''}" onclick="cf=1;render()">I DID IT! ✋</button>`;h+='<p style="text-align:center"><small class=c id=cd></small></p>'}
+  else{
+   let L=cl(cur);
+   h+=L.length?L.map((c,i)=>pcard(c,i,cur)).join(''):`<div class=card><small style="color:var(--r)">DAY ${cur}</small><h2>⏳ No challenge yet</h2><p>Zezo didn’t add today’s challenges yet. Check back later!</p></div>`;
+   h+='<p style="text-align:center"><small class=c id=cd></small></p>';
+  }
   h+=board();
- }else h+=adm(d,T,cur,cl,w);
+ }else h+=adm(d,cur);
  h+=`<p style="text-align:center"><small class=c style="cursor:pointer" onclick="confirm('Change player on this phone?')&&(localStorage.who=who='',render())">change player</small></p>`;
  A.innerHTML=h;cd()}
+function pcard(c,i,day){
+ let w=(S.win||{})[c.id],s;
+ if(w)s=`<div class=ok>${w=='none'?'No winner':w==who?'🏆 You won this one! +3':'😔 '+cap(w)+' was faster'}</div>`;
+ else if(busy==c.id)s='<div class=ok>⏳ Checking…</div>';
+ else if(!ok)s='<div class=ok>📡 Connecting… you need internet to play</div>';
+ else if(cf==c.id)s=`<div class=panel><b>Are you sure you did it?</b><p>Be honest! The first one to confirm wins +3 points.</p><div class=grid2><button class="b gr" onclick="claimWin('${c.id}')">Yes, I won! 🏆</button><button class="b d" onclick="cf='';render()">Not yet</button></div></div>`;
+ else s=`<button class="b go ${who=='asser'?'gr':''}" onclick="cf='${c.id}';render()">I DID IT! ✋</button>`;
+ return `<div class=card><small style="color:var(--r)">DAY ${day} · CHALLENGE ${i+1}</small><h2>${esc(c.t)}</h2>${c.d?`<p>${esc(c.d)}</p>`:''}${s}</div>`}
 const board=()=>`<div class=sb>${['lilly','asser'].map(p=>`<div style="border-color:${PC[p]}">${cap(p)}<big style="color:${PC[p]}">${sc(p)}</big></div>`).join('')}</div>`;
-function adm(d,T,cur,cl,w){
- let h=`<div class=tabs>${[['today','📅 Today'],['live','📢 Live'],['score','🏆 Score'],['chal','📜 List'],['set','⚙️ Setup']].map(([k,l])=>`<button class="tab${tab==k?' on':''}" onclick="setTab('${k}')">${l}</button>`).join('')}</div>`;
+function adm(d,cur){
+ let h=`<div class=tabs>${[['today','📅 Today'],['live','📢 Live'],['score','🏆 Score'],['set','⚙️ Setup']].map(([k,l])=>`<button class="tab${tab==k?' on':''}" onclick="setTab('${k}')">${l}</button>`).join('')}</div>`;
  if(tab=='today'){
-  h+=`<div class=nav><button class="b d" onclick="go(-1)">◀</button><select onchange="zd=+this.value;render()">${Array.from({length:T},(_,i)=>`<option value=${i+1} ${i+1==d?'selected':''}>Day ${i+1}${i+1==cur?' (today)':''}</option>`).join('')}</select><button class="b d" onclick="go(1)">▶</button></div>`;
-  let used=new Set(),pk=(S.pick||{})['d'+d]!=null;for(let k=1;k<=T;k++){if(k!=d&&(k<cur||(S.pick||{})['d'+k]!=null))used.add(ci(k))}
-  h+=`<div class=panel><b>🎯 Challenge for Day ${d}</b><select onchange="setp('pick/d${d}',+this.value)">${S.ch.map((c,i)=>`<option value=${i} ${i==ci(d)?'selected':''}>${used.has(i)?'✔ ':''}${i+1}. ${esc(c.split('|')[0])} (${lv(i+1)[0]})</option>`).join('')}</select><small class=c>${pk?'You picked this one. ✔ = already used on another day.':'Not picked yet, so it follows the list order. ✔ = already used.'}</small>${pk?`<br><button class="b s d" onclick="setp('pick/d${d}',null)">Back to list order</button>`:''}</div>`;
-  h+=`<div class=panel><b>🏁 ${w?(w=='none'?'No winner':'Winner: '+cap(w)):'The race is on…'}</b><p><small class=c>${w?'Decided automatically: first player to confirm.':'Nobody picks the winner. The first player to tap "I did it" and confirm gets +3.'}</small></p>${w?`<button class="b s d" onclick="confirm('Undo this winner? The day opens again.')&&setp('win/d${d}',null)">Undo winner</button>`:''}</div>
-  <details class=panel><summary>✨ Send a custom one-off for Day ${d}</summary><input id=ct placeholder="Title"><textarea id=cds rows=2 placeholder="What to do"></textarea><button class="b s" onclick="$('#ct').value&&setp('custom/d${d}',$('#ct').value+'|'+$('#cds').value)">Send</button><button class="b s d" onclick="setp('custom/d${d}',null)">Remove custom</button></details>`;
+  let L=cl(d);
+  h+=`<div class=nav><button class="b d" onclick="go(-1)">◀</button><select onchange="zd=+this.value;render()">${Array.from({length:cur+14},(_,i)=>`<option value=${i+1} ${i+1==d?'selected':''}>Day ${i+1}${i+1==cur?' (today)':''}</option>`).join('')}</select><button class="b d" onclick="go(1)">▶</button></div>`;
+  h+=`<div class=panel><b>➕ ${d==cur?'What are today’s challenges?':'What are Day '+d+'’s challenges?'}</b><input id=nt placeholder="Challenge title"><textarea id=nd rows=2 placeholder="What to do (optional)"></textarea><button class="b gr" onclick="addC(${d})">+ Add challenge</button><small class=c>${L.length?L.length+' added for Day '+d+'. Add as many as you want.':'Nothing added yet. Players will see “Zezo didn’t add yet”.'}</small></div>`;
+  h+=L.map((c,i)=>{let w=(S.win||{})[c.id];
+   return `<div class=panel><small class=c>CHALLENGE ${i+1}</small><br><b>${esc(c.t)}</b>${c.d?`<p>${esc(c.d)}</p>`:''}<p><small class=c>${w?(w=='none'?'No winner':'🏁 Winner: '+cap(w)):'The race is on… first to confirm gets +3'}</small></p><button class="b s d" onclick="ei=(ei=='${c.id}'?'':'${c.id}');render()">✎ Edit</button><button class="b s d" onclick="delC(${d},'${c.id}')">🗑 Delete</button>${w?`<button class="b s d" onclick="confirm('Undo this winner? The race opens again.')&&setp('win/${c.id}',null)">Undo winner</button>`:''}${ei==c.id?`<input id=et value="${esc(c.t)}" placeholder="Title"><textarea id=ed rows=3 placeholder="What to do">${esc(c.d||'')}</textarea><button class="b s gr" onclick="sv(${d},'${c.id}')">Save</button><button class="b s d" onclick="ei='';render()">Cancel</button>`:''}</div>`}).join('');
  }
  if(tab=='live'){
   h+=`<div class=panel><b>📢 Live message</b><br><small class=c>Drops from the top of every phone instantly, with a sound.</small><textarea id=lm rows=3 maxlength=140 placeholder="Type your message…"></textarea><div>${['⏰ Hurry up!','🎉 New challenge is up!','👀 Zezo is watching','🔥 Who will win today?'].map(t=>`<button class="b s d" onclick="$('#lm').value=this.textContent">${t}</button>`).join('')}</div><button class="b gr" onclick="sendMsg()">Send to everyone 📢</button></div>`;
@@ -239,37 +215,28 @@ function adm(d,T,cur,cl,w){
  if(tab=='score'){
   h+=['lilly','asser'].map(p=>`<div class=panel style="border-color:${PC[p]}"><b style="color:${PC[p]}">${cap(p)}</b><p class=big style="color:${PC[p]}">${sc(p)}</p><div class=grid2><button class="b d" onclick="bump('${p}',-1)">− 1</button><button class="b d" onclick="bump('${p}',1)">+ 1</button></div><small class=c>Or type the exact total:</small><input type=number value="${sc(p)}" onchange="setp('bonus/${p}',+this.value-sc0('${p}'))"></div>`).join('');
  }
- if(tab=='chal'){
-  h+=`<small class=c>${T} challenges · green = easy, orange = medium, red = hard</small>`;
-  h+=S.ch.map((c,i)=>{let[a,b]=c.split('|'),col=lv(i+1)[1];
-   return `<div class=row><span class=n><span class=lvd style="background:${col}"></span>${i+1}. ${esc(a)}${i==ci(cur)?' <small class=c>(today)</small>':''}</span><button class="b s d" onclick="mv(${i},-1)">▲</button><button class="b s d" onclick="mv(${i},1)">▼</button><button class="b s d" onclick="ei=${ei==i?-1:i};render()">✎</button><button class="b s d" onclick="del(${i})">🗑</button></div>`+
-   (ei==i?`<div class=panel><input id=et value="${esc(a)}" placeholder="Title"><textarea id=ed rows=3 placeholder="What to do">${esc(c.split('|').slice(1).join('|'))}</textarea><button class="b s gr" onclick="sv(${i})">Save</button><button class="b s d" onclick="ei=-1;render()">Cancel</button></div>`:'')}).join('');
-  h+=`<button class="b gr" onclick="addc()">+ Add challenge</button><button class="b d" onclick="restoreC()">Restore the default challenge list</button>`;
- }
  if(tab=='set'){
-  h+=`<div class=panel><small class=c>Start date (Day 1)</small><input type=date value="${S.start}" onchange="setp('start',this.value)"><small class=c>New challenge time (hour 0-23)</small><input type=number min=0 max=23 value="${S.hour??4}" onchange="setp('hour',Math.min(23,Math.max(0,+this.value||0)))"><small class=c>Master PIN</small><input value="${esc(S.pin)}" onchange="setp('pin',this.value)"></div>
+  h+=`<div class=panel><small class=c>Start date (Day 1)</small><input type=date value="${S.start}" onchange="setp('start',this.value)"><small class=c>New day starts at (hour 0-23)</small><input type=number min=0 max=23 value="${S.hour??4}" onchange="setp('hour',Math.min(23,Math.max(0,+this.value||0)))"><small class=c>Master PIN</small><input value="${esc(S.pin)}" onchange="setp('pin',this.value)"></div>
   <div class=panel><b>🎬 Preview effects</b><br><small class=c>Plays on this phone only. Also unlocks sound.</small><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px"><button class="b gr" style="margin:0;padding:10px 4px;font-size:15px" onclick="showWin('YOU WON!','Day 1 · +3 points')">Win</button><button class="b" style="margin:0;padding:10px 4px;font-size:15px" onclick="showLose('Asser')">Lose</button><button class="b d" style="margin:0;padding:10px 4px;font-size:15px" onclick="banner('Hello from Zezo!')">Message</button></div></div>
   <button class="b d" onclick="resetS()">Reset season</button>${ok?'':'<p style="color:#ff8a95">📡 Not connected to the database right now.</p>'}`;
  }
  return h+board()}
-function sv(i){let t=$('#et').value.trim()||'Untitled',x=$('#ed').value.replace(/\|/g,'/');ei=-1;setp('ch/'+i,t.replace(/\|/g,'/')+'|'+x)}
-function mv(i,k){let a=[...S.ch],j=i+k;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];ei=-1;setp('ch',a)}
-function del(i){if(S.ch.length<2||!confirm('Delete this challenge?'))return;let a=[...S.ch];a.splice(i,1);ei=-1;setp('ch',a)}
-function addc(){let a=[...S.ch,'New challenge|Describe it'];ei=a.length-1;setp('ch',a)}
-function restoreC(){if(!confirm('Replace ALL challenges with the default list? Your edits will be lost.'))return;ei=-1;setp('ch',[...C])}
-function resetS(){if(!confirm('Reset the whole season? Scores and wins are erased.'))return;['win','claim','custom','evt','msg'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
+function addC(d){let t=$('#nt').value.trim();if(!t)return alert('Type a title first');setp('chal/d'+d+'/'+Date.now().toString(36),{t,d:$('#nd').value.trim(),o:Date.now()})}
+function sv(d,id){let t=$('#et').value.trim();if(!t)return alert('Type a title first');let c=cl(d).find(x=>x.id==id)||{};ei='';setp('chal/d'+d+'/'+id,{t,d:$('#ed').value.trim(),o:c.o||Date.now()})}
+function delC(d,id){if(!confirm('Delete this challenge?'))return;setp('win/'+id,null);setp('chal/d'+d+'/'+id,null)}
+function resetS(){if(!confirm('Reset the whole season? Scores, wins and challenges are erased.'))return;['win','claim','chal','evt','msg'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
 // ===================== winner race, messages, effects =====================
 let fxT=0,raf=0,bt=0,AC=null,OUT=null,mute=localStorage.mute==1;
-async function claimWin(){
- cf=0;let d=curDay();
+async function claimWin(id){
+ cf='';let d=curDay(),t=(cl(d).find(x=>x.id==id)||{}).t||'';
  if(!db||!ok){alert('You are offline. Connect to the internet to play.');return render()}
- busy=1;render();
+ busy=id;render();
  try{
-  const r=await db.ref('win/d'+d).transaction(c=>c===null?who:undefined); // only the FIRST confirm can write
-  busy=0;
-  if(r.committed){const id=Date.now()+'-'+who;localStorage.lastEvt=id;db.ref('evt').set({id,day:d,winner:who,ts:SV.TIMESTAMP});fxResult(who,d)}
-  else{const w=r.snapshot.val();if(w&&w!='none'){sup=d+':'+w;fxResult(w,d)}}
- }catch(e){busy=0;alert('Something went wrong. Try again.')}
+  const r=await db.ref('win/'+id).transaction(c=>c===null?who:undefined); // only the FIRST confirm can write
+  busy='';
+  if(r.committed){const eid=Date.now()+'-'+who;localStorage.lastEvt=eid;db.ref('evt').set({id:eid,day:d,winner:who,t,ts:SV.TIMESTAMP});fxResult(who,d,t)}
+  else{const w=r.snapshot.val();if(w&&w!='none'){sup=d+':'+w;fxResult(w,d,t)}}
+ }catch(e){busy='';alert('Something went wrong. Try again.')}
  render();
 }
 function onEvt(e){
@@ -277,12 +244,13 @@ function onEvt(e){
  localStorage.lastEvt=e.id;
  if(typeof e.ts!='number'||Date.now()+off-e.ts>60000)return; // ignore old results
  if(sup===e.day+':'+e.winner){sup='';return}
- fxResult(e.winner,e.day);
+ fxResult(e.winner,e.day,e.t);
 }
-function fxResult(w,day){
+function fxResult(w,day,t){
  if(!who)return;
- if(who=='zezo')showWin(cap(w).toUpperCase()+' WINS!','Day '+day+' · +3 points for '+cap(w));
- else if(w==who)showWin('YOU WON!','Day '+day+' · +3 points');
+ let ds='Day '+day+(t?' · '+t:'');
+ if(who=='zezo')showWin(cap(w).toUpperCase()+' WINS!',ds+' · +3 points for '+cap(w));
+ else if(w==who)showWin('YOU WON!',ds+' · +3 points');
  else showLose(cap(w));
 }
 function sendMsg(){
@@ -384,11 +352,6 @@ let g=$('#gl');['☥','✦','☥','✦','☥'].forEach((c,i)=>{let e=document.cr
 (()=>{let p=$('#sp');for(let i=0;i<26;i++){let e=document.createElement('i');e.className='sp';e.style.cssText=`left:${Math.random()*100}%;--dx:${(Math.random()*60-30)|0}px;animation-duration:${3+Math.random()*3}s;animation-delay:${Math.random()*3}s`;p.append(e)}
  let m=['Laying the stones…','Raising the pyramid…','Lighting the capstone…','Let the game begin!'],k=0,t=$('#lt');t.textContent=m[0];let iv=setInterval(()=>{k=Math.min(k+1,m.length-1);t.textContent=m[k];if(k==m.length-1)clearInterval(iv)},900)})();
 setTimeout(()=>{$('#ld').style.opacity=0;setTimeout(()=>$('#ld').remove(),800)},3600);
-// icon + manifest
-(()=>{let c=document.createElement('canvas');c.width=c.height=512;let x=c.getContext('2d');x.fillStyle='#080506';x.fillRect(0,0,512,512);x.strokeStyle='#2ecc71';x.lineWidth=18;x.beginPath();x.moveTo(60,256);x.quadraticCurveTo(256,40,452,256);x.quadraticCurveTo(256,472,60,256);x.stroke();x.fillStyle='#ff4757';x.beginPath();x.arc(256,256,70,0,7);x.fill();x.fillStyle='#080506';x.beginPath();x.arc(256,256,26,0,7);x.fill();
- let u=c.toDataURL();let l=document.createElement('link');l.rel='apple-touch-icon';l.href=u;document.head.append(l);
- let mf={name:'Al-Le3ba',short_name:'Al-Le3ba',start_url:location.href.split('#')[0],display:'standalone',background_color:'#080506',theme_color:'#080506',icons:[{src:u,sizes:'512x512',type:'image/png'}]};
- let k=document.createElement('link');k.rel='manifest';k.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(mf));document.head.append(k)})();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 mig();render();startSync();$('#snd').textContent=mute?'🔇':'🔊';
 </script></body></html>
