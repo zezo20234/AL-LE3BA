@@ -151,25 +151,53 @@ function startSync(){
  try{
   firebase.initializeApp(FB);db=firebase.database();SV=firebase.database.ServerValue;
   db.ref('.info/serverTimeOffset').on('value',s=>off=s.val()||0);
-  db.ref('.info/connected').on('value',s=>{ok=s.val()?1:0;dot();rr()});
+  db.ref('.info/connected').on('value',s=>{ok=s.val()?1:0;dot();if(ok)pres();rr()});
   db.ref('/').on('value',s=>{let d=s.val();if(d)applyRemote(d);else db.ref('/').set(JSON.parse(JSON.stringify(S)))},()=>{ok=0;dot()});
  }catch(e){db=null}
 }
 function applyRemote(d){
  S={start:S.start,pin:S.pin,cv:S.cv,win:{},claim:{},chal:{},...d};
  S.bonus={lilly:0,asser:0,...(d.bonus||{})};
- mig();save();rr();
+ mig();save();rr();revCheck();
  if(d.evt)onEvt(d.evt);
  if(d.msg)onMsg(d.msg);
 }
 const dot=()=>{let e=$('#dot');if(e)e.className='dot'+(ok?' on':'')}
+// ---------- who is online (a phone counts as online while the app is open on screen)
+function pres(){
+ if(!db||!ok||!who)return;
+ const r=db.ref('presence/'+who);
+ if(document.hidden)r.set({on:false,ts:SV.TIMESTAMP}).catch(()=>{});
+ else r.onDisconnect().set({on:false,ts:SV.TIMESTAMP}).then(()=>r.set({on:true,ts:SV.TIMESTAMP})).catch(()=>{});
+}
+function unpres(){if(db&&who)db.ref('presence/'+who).set({on:false,ts:SV.TIMESTAMP}).catch(()=>{})}
+document.addEventListener('visibilitychange',pres);
+addEventListener('pagehide',unpres);
+addEventListener('pageshow',pres);
+const pdot=p=>{const o=((S.presence||{})[p]||{}).on;return `<span style="color:${o?'var(--g)':'var(--mu)'}">${o?'🟢':'⚪'} ${p=='zezo'?'👑 Zezo':cap(p)}</span>`};
+const presBar=()=>`<p style="text-align:center;font-size:13px;margin:6px 0">${['lilly','asser','zezo'].map(pdot).join(' &nbsp; ')}</p>`;
+// a challenge only unlocks when BOTH players are in the app at the same moment
+let rb={};
+function revCheck(){
+ if(!db||!ok||dayN()<1)return;
+ const P=S.presence||{};
+ if(!(P.lilly&&P.lilly.on&&P.asser&&P.asser.on))return;
+ cl(curDay()).forEach(c=>{
+  if((S.rev||{})[c.id]||rb[c.id])return;
+  rb[c.id]=1;
+  db.ref('rev/'+c.id).transaction(v=>v?undefined:true).catch(()=>{}).then(()=>{delete rb[c.id]});
+ });
+}
+function playerCards(L,cur){
+ let V=L.filter(c=>(S.rev||{})[c.id]||(S.win||{})[c.id]),o=who=='lilly'?'asser':'lilly',hid=L.length-V.length,here=((S.presence||{})[o]||{}).on;
+ return V.map(c=>pcard(c,L.indexOf(c),cur)).join('')+(hid?`<div class=card><small style="color:var(--r)">DAY ${cur}</small><h2>🔒 ${hid>1?hid+' new challenges are':'A new challenge is'} ready</h2><p>It unlocks when you and ${cap(o)} are both in the app at the same time.</p><p>${here?'✅ '+cap(o)+' is here — unlocking…':'⏳ Waiting for '+cap(o)+' to open the app…'}</p></div>`:'')}
 function dayN(){let n=new Date(Date.now()-(S.hour??4)*36e5),[y,m,d]=S.start.split('-').map(Number);return Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())-Date.UTC(y,m-1,d))/864e5)+1}
 const curDay=()=>Math.max(1,dayN());
 // challenges for a day, in the order Zezo added them
 const cl=n=>Object.entries((S.chal||{})['d'+n]||{}).filter(([,v])=>v&&v.t).map(([id,v])=>({id,...v})).sort((a,b)=>(a.o||0)-(b.o||0));
 const sc=p=>Object.values(S.win||{}).filter(w=>w==p).length*3+((S.bonus||{})[p]||0);
 const sc0=p=>sc(p)-((S.bonus||{})[p]||0);
-function pick(p){if(p=='zezo'&&prompt('Master PIN')!=S.pin)return alert('Wrong PIN');who=localStorage.who=p;render()}
+function pick(p){if(p=='zezo'&&prompt('Master PIN')!=S.pin)return alert('Wrong PIN');who=localStorage.who=p;pres();render()}
 async function hard(){try{await Promise.all((await navigator.serviceWorker.getRegistrations()).map(r=>r.unregister()));await Promise.all((await caches.keys()).map(k=>caches.delete(k)))}catch(e){}location.reload()}
 function cd(){let t=new Date(),x=new Date(t);x.setHours(S.hour??4,0,0,0);if(x<=t)x.setDate(x.getDate()+1);let s=Math.floor((x-t)/1e3),e=$('#cd');if(e)e.textContent=`Next day starts in ${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m ${s%60}s`}
 setInterval(cd,1000);
@@ -179,17 +207,17 @@ function bump(p,k){setp('bonus/'+p,((S.bonus||{})[p]||0)+k)}
 function render(){const A=$('#app');
  if(!who){A.innerHTML='<h2 style="text-align:center;color:#ff6b78">Who are you?</h2>'+['lilly','asser','zezo'].map(p=>`<button class="b ${p=='asser'?'gr':''}" onclick="pick('${p}')">${p=='zezo'?'👑 Zezo (Master)':cap(p)}</button>`).join('')+'<small class=c>This phone will remember your choice.</small>';return}
  let n=dayN(),cur=curDay(),m=who=='zezo',d=m?(zd||cur):cur;
- let h=`<small class=c>Playing as ${m?'👑 Zezo':cap(who)}</small>`;
+ let h=`<small class=c>Playing as ${m?'👑 Zezo':cap(who)}</small>`+presBar();
  if(!m){
   if(n<1)h+=`<div class=ok>Season starts on ${S.start}</div>`;
   else{
    let L=cl(cur);
-   h+=L.length?L.map((c,i)=>pcard(c,i,cur)).join(''):`<div class=card><small style="color:var(--r)">DAY ${cur}</small><h2>⏳ No challenge yet</h2><p>Zezo didn’t add today’s challenges yet. Check back later!</p></div>`;
+   h+=L.length?playerCards(L,cur):`<div class=card><small style="color:var(--r)">DAY ${cur}</small><h2>⏳ No challenge yet</h2><p>Zezo didn’t add today’s challenges yet. Check back later!</p></div>`;
    h+='<p style="text-align:center"><small class=c id=cd></small></p>';
   }
   h+=board();
  }else h+=adm(d,cur);
- h+=`<p style="text-align:center"><small class=c style="cursor:pointer" onclick="confirm('Change player on this phone?')&&(localStorage.who=who='',render())">change player</small></p>`;
+ h+=`<p style="text-align:center"><small class=c style="cursor:pointer" onclick="confirm('Change player on this phone?')&&(unpres(),localStorage.who=who='',render())">change player</small></p>`;
  A.innerHTML=h;cd()}
 function pcard(c,i,day){
  let w=(S.win||{})[c.id],s;
@@ -233,8 +261,8 @@ function setWin(d,id,p){
  if(p!='none')dcTemp('🏆 '+cap(p)+' won Day '+d+(c.t?': '+c.t:''),dcId(p));
  if(p!='none'&&db&&SV){const eid=Date.now()+'-zezo';localStorage.lastEvt=eid;db.ref('evt').set({id:eid,day:d,winner:p,t:c.t||'',ts:SV.TIMESTAMP}).catch(()=>{})}
 }
-function delC(d,id){if(!confirm('Delete this challenge?'))return;setp('win/'+id,null);setp('chal/d'+d+'/'+id,null)}
-function resetS(){if(!confirm('Reset the whole season? Scores, wins and challenges are erased.'))return;['win','claim','chal','evt','msg'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
+function delC(d,id){if(!confirm('Delete this challenge?'))return;setp('win/'+id,null);setp('rev/'+id,null);setp('chal/d'+d+'/'+id,null)}
+function resetS(){if(!confirm('Reset the whole season? Scores, wins and challenges are erased.'))return;['win','claim','chal','rev','evt','msg'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
 // ===================== winner race, messages, effects =====================
 let fxT=0,raf=0,bt=0,AC=null,OUT=null,mute=localStorage.mute==1;
 async function claimWin(id){
@@ -252,7 +280,7 @@ async function claimWin(id){
 function onEvt(e){
  if(!e||!e.id||e.id===localStorage.lastEvt)return;
  localStorage.lastEvt=e.id;
- if(typeof e.ts!='number'||Date.now()+off-e.ts>60000)return; // ignore old results
+ if(typeof e.ts!='number'||Date.now()+off-e.ts>(who=='zezo'?60000:216e5))return; // players still see results they missed (up to 6h)
  if(who=='zezo'&&e.winner&&e.winner!='none')dcTemp('🏆 '+cap(e.winner)+' won Day '+e.day+(e.t?': '+e.t:''),dcId(e.winner)); // winner claimed on a player's phone
  if(sup===e.day+':'+e.winner){sup='';return}
  fxResult(e.winner,e.day,e.t);
@@ -288,19 +316,25 @@ async function dcTemp(text,uid){
   const q=dcQry(),r=await fetch(dcBase()+'?'+(q?q+'&':'')+'wait=true',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:(uid?'<@'+uid+'> ':'')+text,allowed_mentions:uid?{parse:[],users:[uid]}:{parse:[]}})});
   if(!r.ok)throw 0;
   const m=await r.json();
-  localStorage.dcQ=JSON.stringify([...dcQ(),{id:m.id,at:Date.now()+dcDelay()*1000}]);
+  dcAdd({id:m.id,at:Date.now()+dcDelay()*1000});
   setTimeout(dcSweep,dcDelay()*1000+300);
  }catch(e){alert('Could not post to Discord. Check the webhook URL in Setup.')}
 }
 // deletes every due message; also runs on load / every 5s so a closed app still cleans up next time it opens
+const dcAdd=x=>localStorage.dcQ=JSON.stringify([...dcQ(),x]);
+let sweeping=0;
 async function dcSweep(){
- if(!dcBase())return;
- const q=dcQry(),keep=[];
- for(const x of dcQ()){
-  if(x.at>Date.now()){keep.push(x);continue}
-  try{const r=await fetch(dcBase()+'/messages/'+x.id+(q?'?'+q:''),{method:'DELETE'});if(!r.ok&&r.status!=404)keep.push(x)}catch(e){keep.push(x)}
- }
- localStorage.dcQ=JSON.stringify(keep);
+ if(!dcBase()||sweeping)return;
+ sweeping=1;
+ try{
+  const q=dcQry(),done=[];
+  for(const x of dcQ()){
+   if(x.at>Date.now())continue;
+   try{const r=await fetch(dcBase()+'/messages/'+x.id+(q?'?'+q:''),{method:'DELETE'});if(r.ok||r.status==404)done.push(x.id)}catch(e){}
+  }
+  // re-read the queue before saving, so messages posted while we were deleting are never lost
+  if(done.length)localStorage.dcQ=JSON.stringify(dcQ().filter(x=>!done.includes(x.id)));
+ }finally{sweeping=0}
 }
 setInterval(dcSweep,5000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)dcSweep()});
 function onMsg(m){
@@ -372,8 +406,9 @@ function nz(t,d,o={}){
  g.gain.setValueAtTime(.0001,st);g.gain.exponentialRampToValueAtTime(o.v||.2,st+(o.at||.05));g.gain.exponentialRampToValueAtTime(.0001,st+d);
  s.connect(f);f.connect(g);g.connect(OUT);s.start(st);
 }
-function sfx(k){
+function sfx(k,again){
  if(mute||!ac())return;
+ if(AC.state!='running'&&!again){addEventListener('pointerdown',()=>{if($('#fx'))sfx(k,1)},{once:true,passive:true});return} // phone blocked audio: play on first tap
  if(k=='win'){
   nz(0,.5,{f:400,to:3500,v:.18});                                   // whoosh
   [523.25,659.25,783.99].forEach((f,i)=>tn(f,i*.13,.2,{type:'square',v:.1,lp:3200})); // da-da-da
