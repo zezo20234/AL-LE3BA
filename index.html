@@ -190,13 +190,18 @@ function revCheck(){
  });
 }
 function playerCards(L,cur){
- let V=L.filter(c=>(S.rev||{})[c.id]||(S.win||{})[c.id]),o=who=='lilly'?'asser':'lilly',hid=L.length-V.length,here=((S.presence||{})[o]||{}).on;
+ let O=L.filter(c=>!(S.win||{})[c.id]),V=O.filter(c=>(S.rev||{})[c.id]),o=who=='lilly'?'asser':'lilly',hid=O.length-V.length,here=((S.presence||{})[o]||{}).on;
+ if(!O.length)return `<div class=card><small style="color:var(--r)">DAY ${cur}</small><h2>✅ All done!</h2><p>No missions left for today. Check back later!</p></div>`;
  return V.map(c=>pcard(c,L.indexOf(c),cur)).join('')+(hid?`<div class=card><small style="color:var(--r)">DAY ${cur}</small><h2>🔒 ${hid>1?hid+' new challenges are':'A new challenge is'} ready</h2><p>It unlocks when you and ${cap(o)} are both in the app at the same time.</p><p>${here?'✅ '+cap(o)+' is here — unlocking…':'⏳ Waiting for '+cap(o)+' to open the app…'}</p></div>`:'')}
 function dayN(){let n=new Date(Date.now()-(S.hour??4)*36e5),[y,m,d]=S.start.split('-').map(Number);return Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())-Date.UTC(y,m-1,d))/864e5)+1}
 const curDay=()=>Math.max(1,dayN());
 // challenges for a day, in the order Zezo added them
 const cl=n=>Object.entries((S.chal||{})['d'+n]||{}).filter(([,v])=>v&&v.t).map(([id,v])=>({id,...v})).sort((a,b)=>(a.o||0)-(b.o||0));
-const sc=p=>Object.values(S.win||{}).filter(w=>w==p).length*3+((S.bonus||{})[p]||0);
+// points of a mission (Zezo chooses them per mission; default 3)
+const pts=id=>{for(const d of Object.values(S.chal||{})){const c=d&&d[id];if(c)return Math.max(1,Math.floor(+c.p)||3)}return 3};
+const codesOf=c=>Object.values(c.codes||{}).map(String);
+const parseCodes=s=>[...new Set((s||'').split(/[\s,;]+/).filter(Boolean))];
+const sc=p=>Object.entries(S.win||{}).filter(([,w])=>w==p).reduce((a,[id])=>a+pts(id),0)+((S.bonus||{})[p]||0);
 const sc0=p=>sc(p)-((S.bonus||{})[p]||0);
 function pick(p){if(p=='zezo'&&prompt('Master PIN')!=S.pin)return alert('Wrong PIN');who=localStorage.who=p;pres();render()}
 async function hard(){try{await Promise.all((await navigator.serviceWorker.getRegistrations()).map(r=>r.unregister()));await Promise.all((await caches.keys()).map(k=>caches.delete(k)))}catch(e){}location.reload()}
@@ -226,22 +231,30 @@ function render(){const A=$('#app');
  h+=`<p style="text-align:center"><small class=c style="cursor:pointer" onclick="confirm('Change player on this phone?')&&(unpres(),localStorage.who=who='',render())">change player</small></p>`;
  A.innerHTML=h;cd()}
 function pcard(c,i,day){
- let w=(S.win||{})[c.id],s;
- if(w)s=`<div class=ok>${w=='none'?'No winner':w==who?'🏆 You won this one! +3':'😔 '+cap(w)+' was faster'}</div>`;
+ let w=(S.win||{})[c.id],s,pt=pts(c.id),cds=codesOf(c);
+ if(w)s=`<div class=ok>${w=='none'?'No winner':w==who?'🏆 You won this one! +'+pt:'😔 '+cap(w)+' was faster'}</div>`;
  else if(busy==c.id)s='<div class=ok>⏳ Checking…</div>';
  else if(!ok)s='<div class=ok>📡 Connecting… you need internet to play</div>';
- else if(cf==c.id)s=`<div class=panel><b>Are you sure you did it?</b><p>Be honest! The first one to confirm wins +3 points.</p><div class=grid2><button class="b gr" onclick="claimWin('${c.id}')">Yes, I won! 🏆</button><button class="b d" onclick="cf='';render()">Not yet</button></div></div>`;
+ else if(cf==c.id)s=`<div class=panel><b>Are you sure you did it?</b><p>Be honest! The first one to confirm wins +${pt} points.</p><div class=grid2><button class="b gr" onclick="claimWin('${c.id}')">Yes, I won! 🏆</button><button class="b d" onclick="cf='';render()">Not yet</button></div></div>`;
+ else if(cds.length)s=`<div class=panel><b>🔑 Enter the code</b><p>The first one to enter a valid code wins +${pt} points.</p><input id="cin_${c.id}" inputmode=numeric maxlength=6 autocomplete=off placeholder="6-digit code"><button class="b ${who=='asser'?'gr':''}" onclick="codeGo('${c.id}')">Submit code</button></div>`;
  else s=`<button class="b go ${who=='asser'?'gr':''}" onclick="cf='${c.id}';render()">I DID IT! ✋</button>`;
- return `<div class=card><small style="color:var(--r)">DAY ${day} · CHALLENGE ${i+1}</small><h2>${esc(c.t)}</h2>${c.d?`<p>${esc(c.d)}</p>`:''}${s}</div>`}
+ return `<div class=card><small style="color:var(--r)">DAY ${day} · CHALLENGE ${i+1} · ⭐ ${pt} PTS</small><h2>${esc(c.t)}</h2>${c.d?`<p>${esc(c.d)}</p>`:''}${s}</div>`}
+function codeGo(id){
+ let c=cl(curDay()).find(x=>x.id==id);if(!c)return;
+ let v=($('#cin_'+id).value||'').trim();
+ if(!/^\d{6}$/.test(v))return alert('Type the 6-digit code');
+ if(!codesOf(c).includes(v))return alert('Wrong code ❌');
+ claimWin(id);
+}
 const board=()=>`<div class=sb>${['lilly','asser'].map(p=>`<div style="border-color:${PC[p]}">${cap(p)}<big style="color:${PC[p]}">${sc(p)}</big></div>`).join('')}</div>`;
 function adm(d,cur){
  let h=`<div class=tabs>${[['today','📅 Today'],['live','📢 Live'],['score','🏆 Score'],['set','⚙️ Setup']].map(([k,l])=>`<button class="tab${tab==k?' on':''}" onclick="setTab('${k}')">${l}</button>`).join('')}</div>`;
  if(tab=='today'){
   let L=cl(d);
   h+=`<div class=nav><button class="b d" onclick="go(-1)">◀</button><select onchange="zd=+this.value;render()">${Array.from({length:cur+14},(_,i)=>`<option value=${i+1} ${i+1==d?'selected':''}>Day ${i+1}${i+1==cur?' (today)':''}</option>`).join('')}</select><button class="b d" onclick="go(1)">▶</button></div>`;
-  h+=`<div class=panel><b>➕ ${d==cur?'What are today’s challenges?':'What are Day '+d+'’s challenges?'}</b><input id=nt placeholder="Challenge title"><textarea id=nd rows=2 placeholder="What to do (optional)"></textarea><button class="b gr" onclick="addC(${d})">+ Add challenge</button><small class=c>${L.length?L.length+' added for Day '+d+'. Add as many as you want.':'Nothing added yet. Players will see “Zezo didn’t add yet”.'}</small></div>`;
-  h+=L.map((c,i)=>{let w=(S.win||{})[c.id];
-   return `<div class=panel><small class=c>CHALLENGE ${i+1}</small><br><b>${esc(c.t)}</b>${c.d?`<p>${esc(c.d)}</p>`:''}<p><small class=c>${w?(w=='none'?'No winner':'🏁 Winner: '+cap(w)):'The race is on… first to confirm gets +3'}</small></p><small class=c>👑 Pick the winner yourself (overrides the race):</small><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 8px">${[['lilly','Lilly'],['asser','Asser'],['none','No winner']].map(([p,l])=>`<button class="b s ${p=='asser'?'gr':p=='none'?'d':''}${w==p?' on':''}" style="margin:0;display:block;width:auto;padding:10px 2px" onclick="setWin(${d},'${c.id}','${p}')">${w==p?'✔ ':''}${l}</button>`).join('')}</div><button class="b s d" onclick="ei=(ei=='${c.id}'?'':'${c.id}');render()">✎ Edit</button><button class="b s d" onclick="delC(${d},'${c.id}')">🗑 Delete</button>${w?`<button class="b s d" onclick="confirm('Undo this winner? The race opens again.')&&setp('win/${c.id}',null)">Undo winner</button>`:''}${ei==c.id?`<input id=et value="${esc(c.t)}" placeholder="Title"><textarea id=ed rows=3 placeholder="What to do">${esc(c.d||'')}</textarea><button class="b s gr" onclick="sv(${d},'${c.id}')">Save</button><button class="b s d" onclick="ei='';render()">Cancel</button>`:''}</div>`}).join('');
+  h+=`<div class=panel><b>➕ ${d==cur?'What are today’s challenges?':'What are Day '+d+'’s challenges?'}</b><input id=nt placeholder="Challenge title"><textarea id=nd rows=2 placeholder="What to do (optional)"></textarea><small class=c>⭐ Points for this mission</small><input id=np type=number inputmode=numeric min=1 value=3><small class=c>🔑 Codes (optional): one 6-digit code per line. Leave empty to use the “I did it” button.</small><textarea id=nc rows=2 placeholder="123456"></textarea><button class="b s d" onclick="genCode('nc')">🎲 Generate a code</button><button class="b gr" onclick="addC(${d})">+ Add challenge</button><small class=c>${L.length?L.length+' added for Day '+d+'. Add as many as you want.':'Nothing added yet. Players will see “Zezo didn’t add yet”.'}</small></div>`;
+  h+=L.map((c,i)=>{let w=(S.win||{})[c.id],pt=pts(c.id),cds=codesOf(c);
+   return `<div class=panel><small class=c>CHALLENGE ${i+1} · ⭐ ${pt} pts</small><br><b>${esc(c.t)}</b>${c.d?`<p>${esc(c.d)}</p>`:''}<p><small class=c>${cds.length?'🔑 Codes: '+cds.map(esc).join(' · '):'👆 “I did it” button'}</small></p><p><small class=c>${w?(w=='none'?'No winner (hidden from players)':'🏁 Winner: '+cap(w)+' (hidden from players)'):'The race is on… first to '+(cds.length?'enter a code':'confirm')+' gets +'+pt}</small></p><small class=c>👑 Pick the winner yourself (overrides the race):</small><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 8px">${[['lilly','Lilly'],['asser','Asser'],['none','No winner']].map(([p,l])=>`<button class="b s ${p=='asser'?'gr':p=='none'?'d':''}${w==p?' on':''}" style="margin:0;display:block;width:auto;padding:10px 2px" onclick="setWin(${d},'${c.id}','${p}')">${w==p?'✔ ':''}${l}</button>`).join('')}</div><button class="b s d" onclick="ei=(ei=='${c.id}'?'':'${c.id}');render()">✎ Edit</button><button class="b s d" onclick="delC(${d},'${c.id}')">🗑 Delete</button>${w?`<button class="b s d" onclick="confirm('Undo this winner? The race opens again.')&&setp('win/${c.id}',null)">Undo winner</button>`:''}${ei==c.id?`<input id=et value="${esc(c.t)}" placeholder="Title"><textarea id=ed rows=3 placeholder="What to do">${esc(c.d||'')}</textarea><small class=c>⭐ Points</small><input id=ep type=number inputmode=numeric min=1 value="${pt}"><small class=c>🔑 Codes (one 6-digit code per line, empty = “I did it” button)</small><textarea id=ec rows=3>${esc(cds.join('\n'))}</textarea><button class="b s d" onclick="genCode('ec')">🎲 Generate a code</button><button class="b s gr" onclick="sv(${d},'${c.id}')">Save</button><button class="b s d" onclick="ei='';render()">Cancel</button>`:''}</div>`}).join('');
  }
  if(tab=='live'){
   h+=`<div class=panel><b>📢 Live message</b><br><small class=c>Drops from the top of every phone instantly, with a sound.</small><textarea id=lm rows=3 maxlength=140 placeholder="Type your message…"></textarea><div>${['⏰ Hurry up!','🎉 New challenge is up!','👀 Zezo is watching','🔥 Who will win today?'].map(t=>`<button class="b s d" onclick="$('#lm').value=this.textContent">${t}</button>`).join('')}</div><button class="b gr" onclick="sendMsg()">Send to everyone 📢</button>${dcBase()?`<small class=c>💬 Also posts to Discord, then deletes itself after ${dcDelay()}s.</small>`:''}</div>`;
@@ -256,8 +269,16 @@ function adm(d,cur){
   <button class="b d" onclick="resetS()">Reset season</button>${ok?'':'<p style="color:#ff8a95">📡 Not connected to the database right now.</p>'}`;
  }
  return h+board()}
-function addC(d){let t=$('#nt').value.trim();if(!t)return alert('Type a title first');setp('chal/d'+d+'/'+Date.now().toString(36),{t,d:$('#nd').value.trim(),o:Date.now()});dcTemp('🎯 New challenge! Day '+d+': '+t)}
-function sv(d,id){let t=$('#et').value.trim();if(!t)return alert('Type a title first');let c=cl(d).find(x=>x.id==id)||{};ei='';setp('chal/d'+d+'/'+id,{t,d:$('#ed').value.trim(),o:c.o||Date.now()})}
+function genCode(id){let e=$('#'+id),v=String(Math.floor(Math.random()*1e6)).padStart(6,'0');e.value=(e.value.trim()?e.value.trim()+'\n':'')+v}
+// reads points + codes from two form fields; returns null (after alerting) if something is wrong
+function readPC(pi,ci){
+ let p=Math.floor(+$('#'+pi).value);if(!(p>=1)){alert('Points must be 1 or more');return null}
+ let codes=parseCodes($('#'+ci).value);
+ if(codes.some(x=>!/^\d{6}$/.test(x))){alert('Every code must be exactly 6 digits');return null}
+ return{p,codes};
+}
+function addC(d){let t=$('#nt').value.trim();if(!t)return alert('Type a title first');let r=readPC('np','nc');if(!r)return;let o={t,d:$('#nd').value.trim(),o:Date.now(),p:r.p};if(r.codes.length)o.codes=r.codes;setp('chal/d'+d+'/'+Date.now().toString(36),o);dcTemp('🎯 New challenge! Day '+d+': '+t+' (+'+r.p+' pts)')}
+function sv(d,id){let t=$('#et').value.trim();if(!t)return alert('Type a title first');let r=readPC('ep','ec');if(!r)return;let c=cl(d).find(x=>x.id==id)||{};ei='';let o={t,d:$('#ed').value.trim(),o:c.o||Date.now(),p:r.p};if(r.codes.length)o.codes=r.codes;setp('chal/d'+d+'/'+id,o)}
 // Zezo's override: set (or change) the winner of a challenge directly
 function setWin(d,id,p){
  let c=cl(d).find(x=>x.id==id)||{},cur=(S.win||{})[id];
@@ -265,7 +286,7 @@ function setWin(d,id,p){
  if(cur&&!confirm('Change the winner of this challenge to '+(p=='none'?'nobody':cap(p))+'?'))return;
  setp('win/'+id,p);
  if(p!='none')dcWin(p,d,c.t);
- if(p!='none'&&db&&SV){const eid=Date.now()+'-zezo';localStorage.lastEvt=eid;db.ref('evt').set({id:eid,day:d,winner:p,t:c.t||'',ts:SV.TIMESTAMP}).catch(()=>{})}
+ if(p!='none'&&db&&SV){const eid=Date.now()+'-zezo';localStorage.lastEvt=eid;db.ref('evt').set({id:eid,day:d,winner:p,t:c.t||'',pt:pts(id),ts:SV.TIMESTAMP}).catch(()=>{})}
 }
 function delC(d,id){if(!confirm('Delete this challenge?'))return;setp('win/'+id,null);setp('rev/'+id,null);setp('chal/d'+d+'/'+id,null)}
 function resetS(){if(!confirm('Reset the whole season? Scores, wins and challenges are erased.'))return;['win','claim','chal','rev','evt','msg'].forEach(k=>setp(k,null));setp('bonus',{lilly:0,asser:0});setp('start',td())}
@@ -278,7 +299,7 @@ async function claimWin(id){
  try{
   const r=await db.ref('win/'+id).transaction(c=>c===null?who:undefined); // only the FIRST confirm can write
   busy='';
-  if(r.committed){const eid=Date.now()+'-'+who;localStorage.lastEvt=eid;db.ref('evt').set({id:eid,day:d,winner:who,t,ts:SV.TIMESTAMP});dcWin(who,d,t);fxResult(who,d,t)}
+  if(r.committed){const eid=Date.now()+'-'+who;localStorage.lastEvt=eid;db.ref('evt').set({id:eid,day:d,winner:who,t,pt:pts(id),ts:SV.TIMESTAMP});dcWin(who,d,t);fxResult(who,d,t,pts(id))}
   else{const w=r.snapshot.val();if(w&&w!='none'){sup=d+':'+w;fxResult(w,d,t)}}
  }catch(e){busy='';alert('Something went wrong. Try again.')}
  render();
@@ -288,13 +309,13 @@ function onEvt(e){
  localStorage.lastEvt=e.id;
  if(typeof e.ts!='number'||Date.now()+off-e.ts>(who=='zezo'?60000:216e5))return; // players still see results they missed (up to 6h)
  if(sup===e.day+':'+e.winner){sup='';return}
- fxResult(e.winner,e.day,e.t);
+ fxResult(e.winner,e.day,e.t,e.pt);
 }
-function fxResult(w,day,t){
+function fxResult(w,day,t,pt){
  if(!who)return;
- let ds='Day '+day+(t?' · '+t:'');
- if(who=='zezo')showWin(cap(w).toUpperCase()+' WINS!',ds+' · +3 points for '+cap(w));
- else if(w==who)showWin('YOU WON!',ds+' · +3 points');
+ let ds='Day '+day+(t?' · '+t:''),P=Math.max(1,Math.floor(+pt)||3);
+ if(who=='zezo')showWin(cap(w).toUpperCase()+' WINS!',ds+' · +'+P+' points for '+cap(w));
+ else if(w==who)showWin('YOU WON!',ds+' · +'+P+' points');
  else showLose(cap(w));
 }
 function sendMsg(){
