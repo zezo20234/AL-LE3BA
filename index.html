@@ -217,7 +217,7 @@ function adm(d,cur){
  }
  if(tab=='set'){
   h+=`<div class=panel><small class=c>Start date (Day 1)</small><input type=date value="${S.start}" onchange="setp('start',this.value)"><small class=c>New day starts at (hour 0-23)</small><input type=number min=0 max=23 value="${S.hour??4}" onchange="setp('hour',Math.min(23,Math.max(0,+this.value||0)))"><small class=c>Master PIN</small><input value="${esc(S.pin)}" onchange="setp('pin',this.value)"></div>
-  <div class=panel><b>💬 Discord (this phone only)</b><br><small class=c>Live messages also post to this webhook, then auto-delete. Leave empty to turn off.</small><input type=url id=dcw placeholder="https://discord.com/api/webhooks/…" value="${esc(localStorage.dcw||'')}" onchange="dcSave(this.value)"><small class=c>Delete after (seconds)</small><input type=number min=2 max=3600 value="${dcDelay()}" onchange="localStorage.dcs=Math.min(3600,Math.max(2,+this.value||30));render()"><button class="b s d" onclick="dcTemp('Test from Al-Le3ba 👑')">Send test</button></div>
+  <div class=panel><b>💬 Discord (this phone only)</b><br><small class=c>Live messages also post to this webhook, then auto-delete. Leave empty to turn off.</small><input type=url id=dcw placeholder="https://discord.com/api/webhooks/…" value="${esc(localStorage.dcw||'')}" onchange="dcSave(this.value)"><small class=c>Delete after (seconds)</small><input type=number min=2 max=3600 value="${dcDelay()}" onchange="localStorage.dcs=Math.min(3600,Math.max(2,+this.value||30));render()"><small class=c>Lilly's Discord user ID (numbers) — pinged when she wins</small><input inputmode=numeric id=dcl placeholder="e.g. 123456789012345678" value="${esc(localStorage.dcid_lilly||'')}" onchange="localStorage.dcid_lilly=this.value.replace(/\\D/g,'');render()"><small class=c>Asser's Discord user ID (numbers) — pinged when he wins</small><input inputmode=numeric id=dca placeholder="e.g. 123456789012345678" value="${esc(localStorage.dcid_asser||'')}" onchange="localStorage.dcid_asser=this.value.replace(/\\D/g,'');render()"><button class="b s d" onclick="dcTemp('Test from Al-Le3ba 👑')">Send test</button><button class="b s d" onclick="dcTemp('Ping test 🏆',dcId('lilly'))">Test Lilly ping</button><button class="b s d" onclick="dcTemp('Ping test 🏆',dcId('asser'))">Test Asser ping</button></div>
   <div class=panel><b>🎬 Preview effects</b><br><small class=c>Plays on this phone only. Also unlocks sound.</small><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px"><button class="b gr" style="margin:0;padding:10px 4px;font-size:15px" onclick="showWin('YOU WON!','Day 1 · +3 points')">Win</button><button class="b" style="margin:0;padding:10px 4px;font-size:15px" onclick="showLose('Asser')">Lose</button><button class="b d" style="margin:0;padding:10px 4px;font-size:15px" onclick="banner('Hello from Zezo!')">Message</button></div></div>
   <button class="b d" onclick="resetS()">Reset season</button>${ok?'':'<p style="color:#ff8a95">📡 Not connected to the database right now.</p>'}`;
  }
@@ -230,7 +230,7 @@ function setWin(d,id,p){
  if(cur==p)return;
  if(cur&&!confirm('Change the winner of this challenge to '+(p=='none'?'nobody':cap(p))+'?'))return;
  setp('win/'+id,p);
- if(p!='none')dcTemp('🏆 '+cap(p)+' won Day '+d+(c.t?': '+c.t:''));
+ if(p!='none')dcTemp('🏆 '+cap(p)+' won Day '+d+(c.t?': '+c.t:''),dcId(p));
  if(p!='none'&&db&&SV){const eid=Date.now()+'-zezo';localStorage.lastEvt=eid;db.ref('evt').set({id:eid,day:d,winner:p,t:c.t||'',ts:SV.TIMESTAMP}).catch(()=>{})}
 }
 function delC(d,id){if(!confirm('Delete this challenge?'))return;setp('win/'+id,null);setp('chal/d'+d+'/'+id,null)}
@@ -253,7 +253,7 @@ function onEvt(e){
  if(!e||!e.id||e.id===localStorage.lastEvt)return;
  localStorage.lastEvt=e.id;
  if(typeof e.ts!='number'||Date.now()+off-e.ts>60000)return; // ignore old results
- if(who=='zezo'&&e.winner&&e.winner!='none')dcTemp('🏆 '+cap(e.winner)+' won Day '+e.day+(e.t?': '+e.t:'')); // winner claimed on a player's phone
+ if(who=='zezo'&&e.winner&&e.winner!='none')dcTemp('🏆 '+cap(e.winner)+' won Day '+e.day+(e.t?': '+e.t:''),dcId(e.winner)); // winner claimed on a player's phone
  if(sup===e.day+':'+e.winner){sup='';return}
  fxResult(e.winner,e.day,e.t);
 }
@@ -280,10 +280,12 @@ function dcSave(v){
  if(v&&!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\/\d+\/[\w-]+(\?.*)?$/.test(v))return alert('That does not look like a Discord webhook URL.');
  v?localStorage.dcw=v:localStorage.removeItem('dcw');render();
 }
-async function dcTemp(text){
+const dcId=p=>(localStorage['dcid_'+p]||'').replace(/\D/g,'');
+async function dcTemp(text,uid){
  if(!dcBase())return;
+ uid=(uid||'').replace(/\D/g,'');
  try{
-  const q=dcQry(),r=await fetch(dcBase()+'?'+(q?q+'&':'')+'wait=true',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:text,allowed_mentions:{parse:[]}})});
+  const q=dcQry(),r=await fetch(dcBase()+'?'+(q?q+'&':'')+'wait=true',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:(uid?'<@'+uid+'> ':'')+text,allowed_mentions:uid?{parse:[],users:[uid]}:{parse:[]}})});
   if(!r.ok)throw 0;
   const m=await r.json();
   localStorage.dcQ=JSON.stringify([...dcQ(),{id:m.id,at:Date.now()+dcDelay()*1000}]);
